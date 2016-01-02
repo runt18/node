@@ -109,7 +109,7 @@ class TestSuite(object):
     return ".js"
 
   def status_file(self):
-    return "%s/%s.status" % (self.root, self.name)
+    return "{0!s}/{1!s}.status".format(self.root, self.name)
 
   # Used in the status file and for stdout printing.
   def CommonTestName(self, testcase):
@@ -205,10 +205,10 @@ class TestSuite(object):
 
     for rule in self.rules:
       if rule not in used_rules:
-        print("Unused rule: %s -> %s" % (rule, self.rules[rule]))
+        print("Unused rule: {0!s} -> {1!s}".format(rule, self.rules[rule]))
     for rule in self.wildcards:
       if rule not in used_rules:
-        print("Unused rule: %s -> %s" % (rule, self.wildcards[rule]))
+        print("Unused rule: {0!s} -> {1!s}".format(rule, self.wildcards[rule]))
 
   def FilterTestCasesByArgs(self, args):
     """Filter test cases based on command-line arguments.
@@ -322,7 +322,7 @@ class GoogleTestSuite(TestSuite):
 
   def GetFlagsForTestCase(self, testcase, context):
     return (testcase.flags + ["--gtest_filter=" + testcase.path] +
-            ["--gtest_random_seed=%s" % context.random_seed] +
+            ["--gtest_random_seed={0!s}".format(context.random_seed)] +
             ["--gtest_print_time=0"] +
             context.mode_flags)
 

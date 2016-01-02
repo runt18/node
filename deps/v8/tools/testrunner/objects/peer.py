@@ -40,8 +40,7 @@ class Peer(object):
     self.trusted = False  # I trust this peer's public key.
 
   def __str__(self):
-    return ("Peer at %s, jobs: %d, performance: %.2f, trust I/O: %s/%s" %
-            (self.address, self.jobs, self.relative_performance,
+    return ("Peer at {0!s}, jobs: {1:d}, performance: {2:.2f}, trust I/O: {3!s}/{4!s}".format(self.address, self.jobs, self.relative_performance,
              self.trusting_me, self.trusted))
 
   def AddTests(self, shell):

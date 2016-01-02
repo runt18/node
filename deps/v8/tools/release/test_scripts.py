@@ -289,20 +289,17 @@ class SimpleMock(object):
     try:
       expected_call = self._recipe[self._index]
     except IndexError:
-      raise NoRetryException("Calling %s %s" % (name, " ".join(args)))
+      raise NoRetryException("Calling {0!s} {1!s}".format(name, " ".join(args)))
 
     if not isinstance(expected_call, dict):
-      raise NoRetryException("Found wrong expectation type for %s %s" %
-                             (name, " ".join(args)))
+      raise NoRetryException("Found wrong expectation type for {0!s} {1!s}".format(name, " ".join(args)))
 
     if expected_call["name"] != name:
-      raise NoRetryException("Expected action: %s %s - Actual: %s" %
-          (expected_call["name"], expected_call["args"], name))
+      raise NoRetryException("Expected action: {0!s} {1!s} - Actual: {2!s}".format(expected_call["name"], expected_call["args"], name))
 
     # Check if the given working directory matches the expected one.
     if expected_call["cwd"] != kwargs.get("cwd"):
-      raise NoRetryException("Expected cwd: %s in %s %s - Actual: %s" %
-          (expected_call["cwd"],
+      raise NoRetryException("Expected cwd: {0!s} in {1!s} {2!s} - Actual: {3!s}".format(expected_call["cwd"],
            expected_call["name"],
            expected_call["args"],
            kwargs.get("cwd")))
@@ -317,8 +314,7 @@ class SimpleMock(object):
     # Compare expected and actual arguments.
     for (expected_arg, actual_arg) in zip(expected_call['args'], args):
       if expected_arg != actual_arg:
-        raise NoRetryException("Expected: %s - Actual: %s" %
-                               (expected_arg, actual_arg))
+        raise NoRetryException("Expected: {0!s} - Actual: {1!s}".format(expected_arg, actual_arg))
 
     # The expected call contains an optional callback for checking the context
     # at the time of the call.
@@ -327,7 +323,7 @@ class SimpleMock(object):
         expected_call['cb']()
       except:
         tb = traceback.format_exc()
-        raise NoRetryException("Caught exception from callback: %s" % tb)
+        raise NoRetryException("Caught exception from callback: {0!s}".format(tb))
 
     # If the return value is an exception, raise it instead of returning.
     if isinstance(expected_call['ret'], Exception):
@@ -336,8 +332,7 @@ class SimpleMock(object):
 
   def AssertFinished(self):  # pragma: no cover
     if self._index < len(self._recipe) -1:
-      raise NoRetryException("Called mock too seldom: %d vs. %d" %
-                             (self._index, len(self._recipe)))
+      raise NoRetryException("Called mock too seldom: {0:d} vs. {1:d}".format(self._index, len(self._recipe)))
 
 
 class ScriptTest(unittest.TestCase):
@@ -360,10 +355,10 @@ class ScriptTest(unittest.TestCase):
     with open(version_file, "w") as f:
       f.write("  // Some line...\n")
       f.write("\n")
-      f.write("#define V8_MAJOR_VERSION    %s\n" % major)
-      f.write("#define V8_MINOR_VERSION    %s\n" % minor)
-      f.write("#define V8_BUILD_NUMBER     %s\n" % build)
-      f.write("#define V8_PATCH_LEVEL      %s\n" % patch)
+      f.write("#define V8_MAJOR_VERSION    {0!s}\n".format(major))
+      f.write("#define V8_MINOR_VERSION    {0!s}\n".format(minor))
+      f.write("#define V8_BUILD_NUMBER     {0!s}\n".format(build))
+      f.write("#define V8_PATCH_LEVEL      {0!s}\n".format(patch))
       f.write("  // Some line...\n")
       f.write("#define V8_IS_CANDIDATE_VERSION 0\n")
 
@@ -380,11 +375,11 @@ class ScriptTest(unittest.TestCase):
     return script(TEST_CONFIG, self, self._state).RunSteps([step_class], args)
 
   def Call(self, fun, *args, **kwargs):
-    print "Calling %s with %s and %s" % (str(fun), str(args), str(kwargs))
+    print "Calling {0!s} with {1!s} and {2!s}".format(str(fun), str(args), str(kwargs))
 
   def Command(self, cmd, args="", prefix="", pipe=True, cwd=None):
-    print "%s %s" % (cmd, args)
-    print "in %s" % cwd
+    print "{0!s} {1!s}".format(cmd, args)
+    print "in {0!s}".format(cwd)
     return self._mock.Call("command", cmd + " " + args, cwd=cwd)
 
   def ReadLine(self):
@@ -439,9 +434,9 @@ class ScriptTest(unittest.TestCase):
       Cmd("git status -s -uno", ""),
       Cmd("git checkout -f origin/master", ""),
       Cmd("git fetch", ""),
-      Cmd("git branch", "  branch1\n* %s" % TEST_CONFIG["BRANCHNAME"]),
+      Cmd("git branch", "  branch1\n* {0!s}".format(TEST_CONFIG["BRANCHNAME"])),
       RL("Y"),
-      Cmd("git branch -D %s" % TEST_CONFIG["BRANCHNAME"], ""),
+      Cmd("git branch -D {0!s}".format(TEST_CONFIG["BRANCHNAME"]), ""),
     ])
     self.MakeStep().CommonPrepare()
     self.MakeStep().PrepareBranch()
@@ -451,7 +446,7 @@ class ScriptTest(unittest.TestCase):
       Cmd("git status -s -uno", ""),
       Cmd("git checkout -f origin/master", ""),
       Cmd("git fetch", ""),
-      Cmd("git branch", "  branch1\n* %s" % TEST_CONFIG["BRANCHNAME"]),
+      Cmd("git branch", "  branch1\n* {0!s}".format(TEST_CONFIG["BRANCHNAME"])),
       RL("n"),
     ])
     self.MakeStep().CommonPrepare()
@@ -462,9 +457,9 @@ class ScriptTest(unittest.TestCase):
       Cmd("git status -s -uno", ""),
       Cmd("git checkout -f origin/master", ""),
       Cmd("git fetch", ""),
-      Cmd("git branch", "  branch1\n* %s" % TEST_CONFIG["BRANCHNAME"]),
+      Cmd("git branch", "  branch1\n* {0!s}".format(TEST_CONFIG["BRANCHNAME"])),
       RL("Y"),
-      Cmd("git branch -D %s" % TEST_CONFIG["BRANCHNAME"], None),
+      Cmd("git branch -D {0!s}".format(TEST_CONFIG["BRANCHNAME"]), None),
     ])
     self.MakeStep().CommonPrepare()
     self.assertRaises(Exception, self.MakeStep().PrepareBranch)
@@ -598,7 +593,7 @@ class ScriptTest(unittest.TestCase):
     os.environ["EDITOR"] = "vi"
     self.Expect([
       RL(""),  # Open editor.
-      Cmd("vi %s" % TEST_CONFIG["CHANGELOG_ENTRY_FILE"], ""),
+      Cmd("vi {0!s}".format(TEST_CONFIG["CHANGELOG_ENTRY_FILE"]), ""),
     ])
 
     self.RunStep(PushToCandidates, EditChangeLog)
@@ -775,8 +770,8 @@ Performance and stability improvements on all platforms."""
       Cmd("git fetch", ""),
       Cmd("git branch", "  branch1\n* branch2\n"),
       Cmd("git branch", "  branch1\n* branch2\n"),
-      Cmd(("git new-branch %s --upstream origin/master" %
-           TEST_CONFIG["BRANCHNAME"]), ""),
+      Cmd(("git new-branch {0!s} --upstream origin/master".format(
+           TEST_CONFIG["BRANCHNAME"])), ""),
       Cmd("git fetch origin +refs/tags/*:refs/tags/*", ""),
       Cmd("git tag", self.TAGS),
       Cmd("git checkout -f origin/master -- include/v8-version.h",
@@ -793,19 +788,19 @@ Performance and stability improvements on all platforms."""
       expectations.append(RL(""))  # Open editor.
     if not force:
       expectations.append(
-          Cmd("vi %s" % TEST_CONFIG["CHANGELOG_ENTRY_FILE"], ""))
+          Cmd("vi {0!s}".format(TEST_CONFIG["CHANGELOG_ENTRY_FILE"]), ""))
     expectations += [
       Cmd("git fetch", ""),
       Cmd("git checkout -f origin/master", ""),
       Cmd("git diff origin/candidates push_hash", "patch content\n"),
-      Cmd(("git new-branch %s --upstream origin/candidates" %
-           TEST_CONFIG["CANDIDATESBRANCH"]), "", cb=ResetToCandidates),
-      Cmd("git apply --index --reject \"%s\"" % TEST_CONFIG["PATCH_FILE"], ""),
+      Cmd(("git new-branch {0!s} --upstream origin/candidates".format(
+           TEST_CONFIG["CANDIDATESBRANCH"])), "", cb=ResetToCandidates),
+      Cmd("git apply --index --reject \"{0!s}\"".format(TEST_CONFIG["PATCH_FILE"]), ""),
       Cmd("git checkout -f origin/candidates -- ChangeLog", "",
           cb=ResetChangeLog),
       Cmd("git checkout -f origin/candidates -- include/v8-version.h", "",
           cb=self.WriteFakeVersionFile),
-      Cmd("git commit -am \"%s\"" % commit_msg_squashed, ""),
+      Cmd("git commit -am \"{0!s}\"".format(commit_msg_squashed), ""),
     ]
     if manual:
       expectations.append(RL("Y"))  # Sanity check.
@@ -813,10 +808,10 @@ Performance and stability improvements on all platforms."""
       Cmd("git cl land -f --bypass-hooks", ""),
       Cmd("git checkout -f master", ""),
       Cmd("git fetch", ""),
-      Cmd("git branch -D %s" % TEST_CONFIG["CANDIDATESBRANCH"], ""),
-      Cmd(("git new-branch %s --upstream origin/candidates" %
-           TEST_CONFIG["CANDIDATESBRANCH"]), "", cb=ResetToCandidates),
-      Cmd("git commit -aF \"%s\"" % TEST_CONFIG["COMMITMSG_FILE"], "",
+      Cmd("git branch -D {0!s}".format(TEST_CONFIG["CANDIDATESBRANCH"]), ""),
+      Cmd(("git new-branch {0!s} --upstream origin/candidates".format(
+           TEST_CONFIG["CANDIDATESBRANCH"])), "", cb=ResetToCandidates),
+      Cmd("git commit -aF \"{0!s}\"".format(TEST_CONFIG["COMMITMSG_FILE"]), "",
           cb=CheckVersionCommit),
       Cmd("git cl land -f --bypass-hooks", ""),
       Cmd("git fetch", ""),
@@ -826,8 +821,8 @@ Performance and stability improvements on all platforms."""
       Cmd("git tag 3.22.5 hsh_to_tag", ""),
       Cmd("git push origin 3.22.5", ""),
       Cmd("git checkout -f origin/master", ""),
-      Cmd("git branch -D %s" % TEST_CONFIG["BRANCHNAME"], ""),
-      Cmd("git branch -D %s" % TEST_CONFIG["CANDIDATESBRANCH"], ""),
+      Cmd("git branch -D {0!s}".format(TEST_CONFIG["BRANCHNAME"]), ""),
+      Cmd("git branch -D {0!s}".format(TEST_CONFIG["CANDIDATESBRANCH"]), ""),
     ]
     self.Expect(expectations)
 
@@ -930,7 +925,7 @@ Performance and stability improvements on all platforms."""
       Cmd("git checkout -f 3.22.4 -- ChangeLog", "", cb=ResetChangeLog),
       Cmd("git checkout -f 3.22.4 -- include/v8-version.h", "",
           cb=self.WriteFakeVersionFile),
-      Cmd("git commit -aF \"%s\"" % TEST_CONFIG["COMMITMSG_FILE"], "",
+      Cmd("git commit -aF \"{0!s}\"".format(TEST_CONFIG["COMMITMSG_FILE"]), "",
           cb=CheckVersionCommit),
       Cmd("git push origin "
           "refs/heads/work-branch:refs/pending/heads/3.22.5 "
@@ -1070,8 +1065,7 @@ TBR=g_name@chromium.org,reviewer@chromium.org"""
 
     auto_push.AutoPush(TEST_CONFIG, self).Run(AUTO_PUSH_ARGS + ["--push"])
 
-    state = json.loads(FileToText("%s-state.json"
-                                  % TEST_CONFIG["PERSISTFILE_BASENAME"]))
+    state = json.loads(FileToText("{0!s}-state.json".format(TEST_CONFIG["PERSISTFILE_BASENAME"])))
 
     self.assertEquals("abc123", state["candidate"])
 
@@ -1192,8 +1186,8 @@ LOG=N
       Cmd("git checkout -f origin/master", ""),
       Cmd("git fetch", ""),
       Cmd("git branch", "  branch1\n* branch2\n"),
-      Cmd("git new-branch %s --upstream refs/remotes/origin/candidates" %
-          TEST_CONFIG["BRANCHNAME"], ""),
+      Cmd("git new-branch {0!s} --upstream refs/remotes/origin/candidates".format(
+          TEST_CONFIG["BRANCHNAME"]), ""),
       Cmd(("git log --format=%H --grep=\"Port ab12345\" "
            "--reverse origin/master"),
           "ab45678\nab23456"),
@@ -1221,32 +1215,32 @@ LOG=N
       Cmd("git log -1 ab45678", "Title1\nBUG="),
       Cmd("git log -1 ab56789", "Revert \"Something\"\nBUG=none"),
       Cmd("git log -1 -p ab12345", "patch4"),
-      Cmd(("git apply --index --reject \"%s\"" %
-           TEST_CONFIG["TEMPORARY_PATCH_FILE"]),
+      Cmd(("git apply --index --reject \"{0!s}\"".format(
+           TEST_CONFIG["TEMPORARY_PATCH_FILE"])),
           "", cb=VerifyPatch("patch4")),
       Cmd("git log -1 -p ab23456", "patch2"),
-      Cmd(("git apply --index --reject \"%s\"" %
-           TEST_CONFIG["TEMPORARY_PATCH_FILE"]),
+      Cmd(("git apply --index --reject \"{0!s}\"".format(
+           TEST_CONFIG["TEMPORARY_PATCH_FILE"])),
           "", cb=VerifyPatch("patch2")),
       Cmd("git log -1 -p ab34567", "patch3"),
-      Cmd(("git apply --index --reject \"%s\"" %
-           TEST_CONFIG["TEMPORARY_PATCH_FILE"]),
+      Cmd(("git apply --index --reject \"{0!s}\"".format(
+           TEST_CONFIG["TEMPORARY_PATCH_FILE"])),
           "", cb=VerifyPatch("patch3")),
       Cmd("git log -1 -p ab45678", "patch1"),
-      Cmd(("git apply --index --reject \"%s\"" %
-           TEST_CONFIG["TEMPORARY_PATCH_FILE"]),
+      Cmd(("git apply --index --reject \"{0!s}\"".format(
+           TEST_CONFIG["TEMPORARY_PATCH_FILE"])),
           "", cb=VerifyPatch("patch1")),
       Cmd("git log -1 -p ab56789", "patch5\n"),
-      Cmd(("git apply --index --reject \"%s\"" %
-           TEST_CONFIG["TEMPORARY_PATCH_FILE"]),
+      Cmd(("git apply --index --reject \"{0!s}\"".format(
+           TEST_CONFIG["TEMPORARY_PATCH_FILE"])),
           "", cb=VerifyPatch("patch5\n")),
-      Cmd("git apply --index --reject \"%s\"" % extra_patch, ""),
+      Cmd("git apply --index --reject \"{0!s}\"".format(extra_patch), ""),
       RL("Y"),  # Automatically increment patch level?
-      Cmd("git commit -aF \"%s\"" % TEST_CONFIG["COMMITMSG_FILE"], ""),
+      Cmd("git commit -aF \"{0!s}\"".format(TEST_CONFIG["COMMITMSG_FILE"]), ""),
       RL("reviewer@chromium.org"),  # V8 reviewer.
       Cmd("git cl upload --send-mail -r \"reviewer@chromium.org\" "
           "--bypass-hooks --cc \"ulan@chromium.org\"", ""),
-      Cmd("git checkout -f %s" % TEST_CONFIG["BRANCHNAME"], ""),
+      Cmd("git checkout -f {0!s}".format(TEST_CONFIG["BRANCHNAME"]), ""),
       RL("LGTM"),  # Enter LGTM for V8 CL.
       Cmd("git cl presubmit", "Presubmit successfull\n"),
       Cmd("git cl land -f --bypass-hooks", "Closing issue\n",
@@ -1264,7 +1258,7 @@ LOG=N
       Cmd("git tag 3.22.5.1 hsh_to_tag", ""),
       Cmd("git push origin 3.22.5.1", ""),
       Cmd("git checkout -f origin/master", ""),
-      Cmd("git branch -D %s" % TEST_CONFIG["BRANCHNAME"], ""),
+      Cmd("git branch -D {0!s}".format(TEST_CONFIG["BRANCHNAME"]), ""),
     ])
 
     # ab12345 and ab34567 are patches. ab23456 (included) and ab45678 are the
@@ -1347,7 +1341,7 @@ Cr-Commit-Position: refs/heads/4.2.71@{#1}
       Cmd("git checkout -f origin/master", ""),
       Cmd("git fetch", ""),
       Cmd("git branch", "  branch1\n* branch2\n"),
-      Cmd("git new-branch %s" % TEST_CONFIG["BRANCHNAME"], ""),
+      Cmd("git new-branch {0!s}".format(TEST_CONFIG["BRANCHNAME"]), ""),
       Cmd("git fetch origin +refs/tags/*:refs/tags/*", ""),
       Cmd("git rev-list --max-age=395200 --tags",
           "bad_tag\nhash_234\nhash_123\nhash_345\nhash_456\n"),
@@ -1357,37 +1351,37 @@ Cr-Commit-Position: refs/heads/4.2.71@{#1}
       Cmd("git describe --tags hash_345", "3.22.3"),
       Cmd("git describe --tags hash_456", "4.2.71"),
       Cmd("git diff --name-only hash_234 hash_234^", VERSION_FILE),
-      Cmd("git checkout -f hash_234 -- %s" % VERSION_FILE, "",
+      Cmd("git checkout -f hash_234 -- {0!s}".format(VERSION_FILE), "",
           cb=ResetVersion(3, 3, 1, 1)),
       Cmd("git branch -r --contains hash_234", "  branch-heads/3.3\n"),
       Cmd("git log -1 --format=%B hash_234", c_hash_234_commit_log),
       Cmd("git log -1 --format=%s hash_234", ""),
       Cmd("git log -1 --format=%B hash_234", c_hash_234_commit_log),
       Cmd("git log -1 --format=%ci hash_234", "18:15"),
-      Cmd("git checkout -f HEAD -- %s" % VERSION_FILE, "",
+      Cmd("git checkout -f HEAD -- {0!s}".format(VERSION_FILE), "",
           cb=ResetVersion(3, 22, 5)),
       Cmd("git diff --name-only hash_123 hash_123^", VERSION_FILE),
-      Cmd("git checkout -f hash_123 -- %s" % VERSION_FILE, "",
+      Cmd("git checkout -f hash_123 -- {0!s}".format(VERSION_FILE), "",
           cb=ResetVersion(3, 21, 2)),
       Cmd("git branch -r --contains hash_123", "  branch-heads/3.21\n"),
       Cmd("git log -1 --format=%B hash_123", c_hash_123_commit_log),
       Cmd("git log -1 --format=%s hash_123", ""),
       Cmd("git log -1 --format=%B hash_123", c_hash_123_commit_log),
       Cmd("git log -1 --format=%ci hash_123", "03:15"),
-      Cmd("git checkout -f HEAD -- %s" % VERSION_FILE, "",
+      Cmd("git checkout -f HEAD -- {0!s}".format(VERSION_FILE), "",
           cb=ResetVersion(3, 22, 5)),
       Cmd("git diff --name-only hash_345 hash_345^", VERSION_FILE),
-      Cmd("git checkout -f hash_345 -- %s" % VERSION_FILE, "",
+      Cmd("git checkout -f hash_345 -- {0!s}".format(VERSION_FILE), "",
           cb=ResetVersion(3, 22, 3)),
       Cmd("git branch -r --contains hash_345", "  origin/candidates\n"),
       Cmd("git log -1 --format=%B hash_345", c_hash_345_commit_log),
       Cmd("git log -1 --format=%s hash_345", ""),
       Cmd("git log -1 --format=%B hash_345", c_hash_345_commit_log),
       Cmd("git log -1 --format=%ci hash_345", ""),
-      Cmd("git checkout -f HEAD -- %s" % VERSION_FILE, "",
+      Cmd("git checkout -f HEAD -- {0!s}".format(VERSION_FILE), "",
           cb=ResetVersion(3, 22, 5)),
       Cmd("git diff --name-only hash_456 hash_456^", VERSION_FILE),
-      Cmd("git checkout -f hash_456 -- %s" % VERSION_FILE, "",
+      Cmd("git checkout -f hash_456 -- {0!s}".format(VERSION_FILE), "",
           cb=ResetVersion(4, 2, 71)),
       Cmd("git branch -r --contains hash_456", "  origin/4.2.71\n"),
       Cmd("git log -1 --format=%B hash_456", c_hash_456_commit_log),
@@ -1398,7 +1392,7 @@ Cr-Commit-Position: refs/heads/4.2.71@{#1}
           "Cr-Commit-Position: refs/heads/master@{#456}"),
       Cmd("git log -1 --format=%B hash_456", c_hash_456_commit_log),
       Cmd("git log -1 --format=%ci hash_456", "02:15"),
-      Cmd("git checkout -f HEAD -- %s" % VERSION_FILE, "",
+      Cmd("git checkout -f HEAD -- {0!s}".format(VERSION_FILE), "",
           cb=ResetVersion(3, 22, 5)),
       Cmd("git fetch origin +refs/heads/*:refs/remotes/origin/* "
           "+refs/branch-heads/*:refs/remotes/branch-heads/*", "",
@@ -1437,7 +1431,7 @@ Cr-Commit-Position: refs/heads/4.2.71@{#1}
       Cmd("git rev-list -1 11.1.1", "v8_previous_version_hash"),
       Cmd("git rev-list -1 22.2.2.2", "v8_version_hash"),
       Cmd("git checkout -f origin/master", ""),
-      Cmd("git branch -D %s" % TEST_CONFIG["BRANCHNAME"], "")
+      Cmd("git branch -D {0!s}".format(TEST_CONFIG["BRANCHNAME"]), "")
     ])
 
     args = ["-c", TEST_CONFIG["CHROMIUM"],

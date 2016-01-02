@@ -61,8 +61,8 @@ def main():
   if not os.path.exists(LLVM_BUILD_PATH):
     os.makedirs(LLVM_BUILD_PATH)
 
-  targz_name = 'llvmgold-%s.tgz' % CLANG_REVISION
-  remote_path = '%s/%s' % (CLANG_BUCKET, targz_name)
+  targz_name = 'llvmgold-{0!s}.tgz'.format(CLANG_REVISION)
+  remote_path = '{0!s}/{1!s}'.format(CLANG_BUCKET, targz_name)
 
   os.chdir(LLVM_BUILD_PATH)
 

@@ -94,7 +94,7 @@ def MakeArgs(l):
 
 
 def Quoted(s):
-  return "\"%s\"" % s
+  return "\"{0!s}\"".format(s)
 
 
 class GitRecipesMixin(object):
@@ -147,7 +147,7 @@ class GitRecipesMixin(object):
     try:
       files = self.Git(MakeArgs(["diff --name-only",
                                  git_hash,
-                                 "%s^" % git_hash]), **kwargs)
+                                 "{0!s}^".format(git_hash)]), **kwargs)
       return map(str.strip, files.splitlines())
     except GitFailedException:  # pragma: no cover
       # Git fails using "^" at branch roots.
@@ -167,17 +167,17 @@ class GitRecipesMixin(object):
     assert not (git_hash and parent_hash)
     args = ["log"]
     if n > 0:
-      args.append("-%d" % n)
+      args.append("-{0:d}".format(n))
     if format:
-      args.append("--format=%s" % format)
+      args.append("--format={0!s}".format(format))
     if grep:
-      args.append("--grep=\"%s\"" % grep.replace("\"", "\\\""))
+      args.append("--grep=\"{0!s}\"".format(grep.replace("\"", "\\\"")))
     if reverse:
       args.append("--reverse")
     if git_hash:
       args.append(git_hash)
     if parent_hash:
-      args.append("%s^" % parent_hash)
+      args.append("{0!s}^".format(parent_hash))
     args.append(branch)
     if path:
       args.extend(["--", path])
@@ -186,7 +186,7 @@ class GitRecipesMixin(object):
   def GitShowFile(self, refspec, path, **kwargs):
     assert refspec
     assert path
-    return self.Git(MakeArgs(["show", "%s:%s" % (refspec, path)]), **kwargs)
+    return self.Git(MakeArgs(["show", "{0!s}:{1!s}".format(refspec, path)]), **kwargs)
 
   def GitGetPatch(self, git_hash, **kwargs):
     assert git_hash
@@ -232,7 +232,7 @@ class GitRecipesMixin(object):
     if message:
       args += ["-am", Quoted(message)]
     if author:
-      args += ["--author", "\"%s <%s>\"" % (author, author)]
+      args += ["--author", "\"{0!s} <{1!s}>\"".format(author, author)]
     self.Git(MakeArgs(args), **kwargs)
 
   def GitPresubmit(self, **kwargs):
@@ -278,8 +278,8 @@ class GitRecipesMixin(object):
       match = GIT_SVN_ID_RE.match(value)
       if match:
         return match.group(1)
-    raise GitFailedException("Couldn't determine commit position for %s" %
-                             git_hash)
+    raise GitFailedException("Couldn't determine commit position for {0!s}".format(
+                             git_hash))
 
   def GitGetHashOfTag(self, tag_name, **kwargs):
     return self.Git("rev-list -1 " + tag_name).strip().encode("ascii", "ignore")

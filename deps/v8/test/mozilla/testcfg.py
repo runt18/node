@@ -139,7 +139,7 @@ class MozillaTestSuite(testsuite.TestSuite):
       if os.path.exists(directory_name_old):
         shutil.rmtree(directory_name_old)
       os.rename(directory_name, directory_name_old)
-    archive_file = "downloaded_%s.tar.gz" % MOZILLA_VERSION
+    archive_file = "downloaded_{0!s}.tar.gz".format(MOZILLA_VERSION)
     if os.path.exists(archive_file):
       with tarfile.open(archive_file, "r:gz") as tar:
         tar.extractall()
@@ -149,8 +149,7 @@ class MozillaTestSuite(testsuite.TestSuite):
       return
 
     # No cached copy. Check out via SVN, and pack as .tar.gz for later use.
-    command = ("svn co -r %s %s mozilla/js/tests" %
-               (MOZILLA_VERSION, SVN_SERVER))
+    command = ("svn co -r {0!s} {1!s} mozilla/js/tests".format(MOZILLA_VERSION, SVN_SERVER))
     code = subprocess.call(command, shell=True)
     if code != 0:
       os.chdir(old_cwd)

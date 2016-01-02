@@ -56,7 +56,7 @@ class WorkHandler(SocketServer.BaseRequestHandler):
     packet = workpacket.WorkPacket.Unpack(data)
     self.ctx = packet.context
     self.ctx.shell_dir = os.path.join("out",
-                                      "%s.%s" % (self.ctx.arch, self.ctx.mode))
+                                      "{0!s}.{1!s}".format(self.ctx.arch, self.ctx.mode))
     if not os.path.isdir(self.ctx.shell_dir):
       os.makedirs(self.ctx.shell_dir)
     for binary in packet.binaries:
@@ -84,7 +84,7 @@ class WorkHandler(SocketServer.BaseRequestHandler):
     # Clean up.
     self._Call("git checkout -f")
     self._Call("git clean -f -d")
-    self._Call("rm -rf %s" % self.ctx.shell_dir)
+    self._Call("rm -rf {0!s}".format(self.ctx.shell_dir))
 
   def _UnpackBinary(self, binary, pubkey_fingerprint):
     binary_name = binary["name"]
@@ -94,7 +94,7 @@ class WorkHandler(SocketServer.BaseRequestHandler):
       target = os.path.join(libdir, binary_name)
     else:
       target = os.path.join(self.ctx.shell_dir, binary_name)
-    pubkeyfile = "../trusted/%s.pem" % pubkey_fingerprint
+    pubkeyfile = "../trusted/{0!s}.pem".format(pubkey_fingerprint)
     if not signatures.VerifySignature(target, binary["blob"],
                                       binary["sign"], pubkeyfile):
       self._SendResponse("Signature verification failed")
@@ -104,8 +104,8 @@ class WorkHandler(SocketServer.BaseRequestHandler):
 
   def _CheckoutRevision(self, base_svn_revision):
     get_hash_cmd = (
-        "git log -1 --format=%%H --remotes --grep='^git-svn-id:.*@%s'" %
-        base_svn_revision)
+        "git log -1 --format=%H --remotes --grep='^git-svn-id:.*@{0!s}'".format(
+        base_svn_revision))
     try:
       base_revision = subprocess.check_output(get_hash_cmd, shell=True)
       if not base_revision: raise ValueError
@@ -117,7 +117,7 @@ class WorkHandler(SocketServer.BaseRequestHandler):
       except:
         self._SendResponse("Base revision not found.")
         return False
-    code = self._Call("git checkout -f %s" % base_revision)
+    code = self._Call("git checkout -f {0!s}".format(base_revision))
     if code != 0:
       self._SendResponse("Error trying to check out base revision.")
       return False
@@ -132,7 +132,7 @@ class WorkHandler(SocketServer.BaseRequestHandler):
     patchfilename = "_dtest_incoming_patch.patch"
     with open(patchfilename, "w") as f:
       f.write(patch)
-    code = self._Call("git apply %s" % patchfilename)
+    code = self._Call("git apply {0!s}".format(patchfilename))
     if code != 0:
       self._SendResponse("Error applying patch.")
       return False

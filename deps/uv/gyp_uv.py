@@ -75,10 +75,10 @@ if __name__ == '__main__':
       args.extend(['--generator-output', output_dir])
 
   if not any(a.startswith('-Dhost_arch=') for a in args):
-    args.append('-Dhost_arch=%s' % host_arch())
+    args.append('-Dhost_arch={0!s}'.format(host_arch()))
 
   if not any(a.startswith('-Dtarget_arch=') for a in args):
-    args.append('-Dtarget_arch=%s' % host_arch())
+    args.append('-Dtarget_arch={0!s}'.format(host_arch()))
 
   if not any(a.startswith('-Duv_library=') for a in args):
     args.append('-Duv_library=static_library')

@@ -44,7 +44,7 @@ def EscapeCommand(command):
     if ' ' in part:
       # Escape spaces.  We may need to escape more characters for this
       # to work properly.
-      parts.append('"%s"' % part)
+      parts.append('"{0!s}"'.format(part))
     else:
       parts.append(part)
   return " ".join(parts)
@@ -78,10 +78,10 @@ class ProgressIndicator(object):
       negative_marker = '[negative] '
     else:
       negative_marker = ''
-    print "=== %(label)s %(negative)s===" % {
+    print "=== {label!s} {negative!s}===".format(**{
       'label': test.GetLabel(),
       'negative': negative_marker
-    }
+    })
 
 
 class IndicatorNotifier(object):
@@ -112,7 +112,7 @@ class SimpleProgressIndicator(ProgressIndicator):
   """Abstract base class for {Verbose,Dots}ProgressIndicator"""
 
   def Starting(self):
-    print 'Running %i tests' % self.runner.total
+    print 'Running {0:d} tests'.format(self.runner.total)
 
   def Done(self):
     print
@@ -124,9 +124,9 @@ class SimpleProgressIndicator(ProgressIndicator):
       if failed.output.stdout:
         print "--- stdout ---"
         print failed.output.stdout.strip()
-      print "Command: %s" % EscapeCommand(self.runner.GetCommand(failed))
+      print "Command: {0!s}".format(EscapeCommand(self.runner.GetCommand(failed)))
       if failed.output.HasCrashed():
-        print "exit code: %d" % failed.output.exit_code
+        print "exit code: {0:d}".format(failed.output.exit_code)
         print "--- CRASHED ---"
       if failed.output.HasTimedOut():
         print "--- TIMEOUT ---"
@@ -137,16 +137,16 @@ class SimpleProgressIndicator(ProgressIndicator):
     else:
       print
       print "==="
-      print "=== %i tests failed" % len(self.runner.failed)
+      print "=== {0:d} tests failed".format(len(self.runner.failed))
       if self.runner.crashed > 0:
-        print "=== %i tests CRASHED" % self.runner.crashed
+        print "=== {0:d} tests CRASHED".format(self.runner.crashed)
       print "==="
 
 
 class VerboseProgressIndicator(SimpleProgressIndicator):
 
   def AboutToRun(self, test):
-    print 'Starting %s...' % test.GetLabel()
+    print 'Starting {0!s}...'.format(test.GetLabel())
     sys.stdout.flush()
 
   def HasRun(self, test, has_unexpected_output):
@@ -157,7 +157,7 @@ class VerboseProgressIndicator(SimpleProgressIndicator):
         outcome = 'FAIL'
     else:
       outcome = 'pass'
-    print 'Done running %s: %s' % (test.GetLabel(), outcome)
+    print 'Done running {0!s}: {1!s}'.format(test.GetLabel(), outcome)
     sys.stdout.flush()
 
   def Heartbeat(self):
@@ -212,9 +212,9 @@ class CompactProgressIndicator(ProgressIndicator):
       stderr = test.output.stderr.strip()
       if len(stderr):
         print self.templates['stderr'] % stderr
-      print "Command: %s" % EscapeCommand(self.runner.GetCommand(test))
+      print "Command: {0!s}".format(EscapeCommand(self.runner.GetCommand(test)))
       if test.output.HasCrashed():
-        print "exit code: %d" % test.output.exit_code
+        print "exit code: {0:d}".format(test.output.exit_code)
         print "--- CRASHED ---"
       if test.output.HasTimedOut():
         print "--- TIMEOUT ---"
@@ -296,13 +296,13 @@ class JUnitTestProgressIndicator(ProgressIndicator):
     if has_unexpected_output:
       stdout = test.output.stdout.strip()
       if len(stdout):
-        fail_text += "stdout:\n%s\n" % stdout
+        fail_text += "stdout:\n{0!s}\n".format(stdout)
       stderr = test.output.stderr.strip()
       if len(stderr):
-        fail_text += "stderr:\n%s\n" % stderr
-      fail_text += "Command: %s" % EscapeCommand(self.runner.GetCommand(test))
+        fail_text += "stderr:\n{0!s}\n".format(stderr)
+      fail_text += "Command: {0!s}".format(EscapeCommand(self.runner.GetCommand(test)))
       if test.output.HasCrashed():
-        fail_text += "exit code: %d\n--- CRASHED ---" % test.output.exit_code
+        fail_text += "exit code: {0:d}\n--- CRASHED ---".format(test.output.exit_code)
       if test.output.HasTimedOut():
         fail_text += "--- TIMEOUT ---"
     self.outputter.HasRunTest(

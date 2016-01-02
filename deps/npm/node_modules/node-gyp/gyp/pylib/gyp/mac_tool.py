@@ -38,7 +38,7 @@ class MacTool(object):
     if len(args) < 1:
       raise Exception("Not enough arguments")
 
-    method = "Exec%s" % self._CommandifyName(args[0])
+    method = "Exec{0!s}".format(self._CommandifyName(args[0]))
     return getattr(self, method)(*args[1:])
 
   def _CommandifyName(self, name_string):
@@ -157,7 +157,7 @@ class MacTool(object):
     for key in os.environ:
       if key.startswith('_'):
         continue
-      evar = '${%s}' % key
+      evar = '${{{0!s}}}'.format(key)
       evalue = os.environ[key]
       lines = string.replace(lines, evar, evalue)
 
@@ -167,11 +167,11 @@ class MacTool(object):
       # convert non-url characters into things that look like valid urls --
       # except that the replacement character for :identifier, '_' isn't valid
       # in a URL either -- oops, hence :rfc1034identifier was born.
-      evar = '${%s:identifier}' % key
+      evar = '${{{0!s}:identifier}}'.format(key)
       evalue = IDENT_RE.sub('_', os.environ[key])
       lines = string.replace(lines, evar, evalue)
 
-      evar = '${%s:rfc1034identifier}' % key
+      evar = '${{{0!s}:rfc1034identifier}}'.format(key)
       evalue = IDENT_RE.sub('-', os.environ[key])
       lines = string.replace(lines, evar, evalue)
 
@@ -215,7 +215,7 @@ class MacTool(object):
 
     dest = os.path.join(os.path.dirname(info_plist), 'PkgInfo')
     fp = open(dest, 'w')
-    fp.write('%s%s' % (package_type, signature_code))
+    fp.write('{0!s}{1!s}'.format(package_type, signature_code))
     fp.close()
 
   def ExecFlock(self, lockfile, *cmd_list):
@@ -441,7 +441,7 @@ class MacTool(object):
         os.environ['HOME'], 'Library', 'MobileDevice', 'Provisioning Profiles')
     if not os.path.isdir(profiles_dir):
       print >>sys.stderr, (
-          'cannot find mobile provisioning for %s' % bundle_identifier)
+          'cannot find mobile provisioning for {0!s}'.format(bundle_identifier))
       sys.exit(1)
     provisioning_profiles = None
     if profile:
@@ -457,13 +457,13 @@ class MacTool(object):
       app_id_pattern = profile_data.get(
           'Entitlements', {}).get('application-identifier', '')
       for team_identifier in profile_data.get('TeamIdentifier', []):
-        app_id = '%s.%s' % (team_identifier, bundle_identifier)
+        app_id = '{0!s}.{1!s}'.format(team_identifier, bundle_identifier)
         if fnmatch.fnmatch(app_id, app_id_pattern):
           valid_provisioning_profiles[app_id_pattern] = (
               profile_path, profile_data, team_identifier)
     if not valid_provisioning_profiles:
       print >>sys.stderr, (
-          'cannot find mobile provisioning for %s' % bundle_identifier)
+          'cannot find mobile provisioning for {0!s}'.format(bundle_identifier))
       sys.exit(1)
     # If the user has multiple provisioning profiles installed that can be
     # used for ${bundle_identifier}, pick the most specific one (ie. the
@@ -598,7 +598,7 @@ class MacTool(object):
     """
     if isinstance(data, str):
       for key, value in substitutions.iteritems():
-        data = data.replace('$(%s)' % key, value)
+        data = data.replace('$({0!s})'.format(key), value)
       return data
     if isinstance(data, list):
       return [self._ExpandVariables(v, substitutions) for v in data]

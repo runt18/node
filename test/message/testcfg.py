@@ -61,33 +61,33 @@ class MessageTestCase(test.TestCase):
         continue
       pattern = re.escape(line.rstrip() % env)
       pattern = pattern.replace('\\*', '.*')
-      pattern = '^%s$' % pattern
+      pattern = '^{0!s}$'.format(pattern)
       patterns.append(pattern)
     # Compare actual output with the expected
     raw_lines = (output.stdout + output.stderr).split('\n')
     outlines = [ s for s in raw_lines if not self.IgnoreLine(s) ]
     if len(outlines) != len(patterns):
       print "length differs."
-      print "expect=%d" % len(patterns)
-      print "actual=%d" % len(outlines)
+      print "expect={0:d}".format(len(patterns))
+      print "actual={0:d}".format(len(outlines))
       print "patterns:"
       for i in xrange(len(patterns)):
-        print "pattern = %s" % patterns[i]
+        print "pattern = {0!s}".format(patterns[i])
       print "outlines:"
       for i in xrange(len(outlines)):
-        print "outline = %s" % outlines[i]
+        print "outline = {0!s}".format(outlines[i])
       return True
     for i in xrange(len(patterns)):
       if not re.match(patterns[i], outlines[i]):
         print "match failed"
-        print "line=%d" % i
-        print "expect=%s" % patterns[i]
-        print "actual=%s" % outlines[i]
+        print "line={0:d}".format(i)
+        print "expect={0!s}".format(patterns[i])
+        print "actual={0!s}".format(outlines[i])
         return True
     return False
 
   def GetLabel(self):
-    return "%s %s" % (self.mode, self.GetName())
+    return "{0!s} {1!s}".format(self.mode, self.GetName())
 
   def GetName(self):
     return self.path[-1]
@@ -127,7 +127,7 @@ class MessageTestConfiguration(test.TestConfiguration):
         file_path = file_prefix + ".js"
         output_path = file_prefix + ".out"
         if not exists(output_path):
-          print "Could not find %s" % output_path
+          print "Could not find {0!s}".format(output_path)
           continue
         result.append(MessageTestCase(test, file_path, output_path,
                                       arch, mode, self.context, self))

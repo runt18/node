@@ -69,7 +69,7 @@ def Escape(arg):
         return True
     return False
 
-  return arg if not ShouldEscape() else '"%s"' % (arg.replace('"', '\\"'))
+  return arg if not ShouldEscape() else '"{0!s}"'.format((arg.replace('"', '\\"')))
 
 def WriteToTemporaryFile(data):
   (fd, fname) = tempfile.mkstemp()
@@ -117,7 +117,7 @@ def GetNaClResources(nexe):
     print("NaCl V8 ARM support is not ready yet.")
     sys.exit(1)
   else:
-    print("Invalid nexe %s with NaCl arch %s" % (nexe, nacl_arch))
+    print("Invalid nexe {0!s} with NaCl arch {1!s}".format(nexe, nacl_arch))
     sys.exit(1)
 
   nacl_sel_ldr = os.path.join(nacl_sdk_dir, "tools", sel_ldr)
@@ -127,7 +127,7 @@ def GetNaClResources(nexe):
 
 def Main():
   if (len(sys.argv) == 1):
-    print("Usage: %s <command-to-run-on-device>" % sys.argv[0])
+    print("Usage: {0!s} <command-to-run-on-device>".format(sys.argv[0]))
     return 1
 
   args = [Escape(arg) for arg in sys.argv[1:]]

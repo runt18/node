@@ -37,7 +37,7 @@ def Main():
   registrations = Find(REGISTER_FILE, REGISTER_RE)
   difference = list(set(declarations) - set(registrations) - set(BLACKLISTED))
   for reference in difference:
-    print("Declared but not registered: ExternalReference::%s" % reference)
+    print("Declared but not registered: ExternalReference::{0!s}".format(reference))
   return len(difference) > 0
 
 if __name__ == "__main__":

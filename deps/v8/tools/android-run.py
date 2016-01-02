@@ -73,7 +73,7 @@ def Escape(arg):
         return True
     return False
 
-  return arg if not ShouldEscape() else '"%s"' % (arg.replace('"', '\\"'))
+  return arg if not ShouldEscape() else '"{0!s}"'.format((arg.replace('"', '\\"')))
 
 def WriteToTemporaryFile(data):
   (fd, fname) = tempfile.mkstemp()
@@ -85,7 +85,7 @@ def WriteToTemporaryFile(data):
 
 def Main():
   if (len(sys.argv) == 1):
-    print("Usage: %s <command-to-run-on-device>" % sys.argv[0])
+    print("Usage: {0!s} <command-to-run-on-device>".format(sys.argv[0]))
     return 1
   workspace = abspath(join(dirname(sys.argv[0]), '..'))
   android_workspace = os.getenv("ANDROID_V8", "/data/local/tmp/v8")
@@ -98,9 +98,9 @@ def Main():
   script = script.replace(workspace, android_workspace)
   script_file = WriteToTemporaryFile(script)
   android_script_file = android_workspace + "/" + script_file
-  command =  ("adb push '%s' %s;" % (script_file, android_script_file) +
-              "adb shell 'sh %s';" % android_script_file +
-              "adb shell 'rm %s'" % android_script_file)
+  command =  ("adb push '{0!s}' {1!s};".format(script_file, android_script_file) +
+              "adb shell 'sh {0!s}';".format(android_script_file) +
+              "adb shell 'rm {0!s}'".format(android_script_file))
   error_code = Execute(command)
   os.unlink(script_file)
   return error_code

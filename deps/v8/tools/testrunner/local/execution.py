@@ -94,7 +94,7 @@ class Runner(object):
     try:
       fun()
     except Exception, e:
-      print("PerfData exception: %s" % e)
+      print("PerfData exception: {0!s}".format(e))
       self.perf_failures = True
 
   def _GetJob(self, test):
@@ -280,7 +280,7 @@ class Runner(object):
     if utils.IsWindows():
       shell += ".exe"
     if self.context.random_seed:
-      d8testflag += ["--random-seed=%s" % self.context.random_seed]
+      d8testflag += ["--random-seed={0!s}".format(self.context.random_seed)]
     cmd = (self.context.command_prefix +
            [os.path.abspath(os.path.join(self.context.shell_dir, shell))] +
            d8testflag +

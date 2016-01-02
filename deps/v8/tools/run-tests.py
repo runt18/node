@@ -183,7 +183,7 @@ SLOW_ARCHS = ["android_arm",
 def BuildOptions():
   result = optparse.OptionParser()
   result.usage = '%prog [options] [tests]'
-  result.description = """TESTS: %s""" % (TEST_MAP["default"])
+  result.description = """TESTS: {0!s}""".format((TEST_MAP["default"]))
   result.add_option("--arch",
                     help=("The architecture to run tests for, "
                           "'auto' or 'native' for auto-detect: %s" % SUPPORTED_ARCHS),
@@ -262,7 +262,7 @@ def BuildOptions():
                     help="Don't run any testing variants",
                     default=False, dest="no_variants", action="store_true")
   result.add_option("--variants",
-                    help="Comma-separated list of testing variants: %s" % VARIANTS)
+                    help="Comma-separated list of testing variants: {0!s}".format(VARIANTS))
   result.add_option("--exhaustive-variants",
                     default=False, action="store_true",
                     help="Use exhaustive set of default variants.")
@@ -362,14 +362,14 @@ def ProcessOptions(options):
   options.mode = options.mode.split(",")
   for mode in options.mode:
     if not BuildbotToV8Mode(mode) in MODES:
-      print "Unknown mode %s" % mode
+      print "Unknown mode {0!s}".format(mode)
       return False
   if options.arch in ["auto", "native"]:
     options.arch = ARCH_GUESS
   options.arch = options.arch.split(",")
   for arch in options.arch:
     if not arch in SUPPORTED_ARCHS:
-      print "Unknown architecture %s" % arch
+      print "Unknown architecture {0!s}".format(arch)
       return False
 
   # Store the final configuration in arch_and_mode list. Don't overwrite
@@ -414,7 +414,7 @@ def ProcessOptions(options):
     VARIANTS = ["default"]
     suppressions_file = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                      'sanitizers', 'tsan_suppressions.txt')
-    tsan_options = '%s suppressions=%s' % (
+    tsan_options = '{0!s} suppressions={1!s}'.format(
         os.environ.get('TSAN_OPTIONS', ''), suppressions_file)
     os.environ['TSAN_OPTIONS'] = tsan_options
 
@@ -447,7 +447,7 @@ def ProcessOptions(options):
   if options.variants:
     VARIANTS = options.variants.split(",")
     if not set(VARIANTS).issubset(ALL_VARIANTS):
-      print "All variants must be in %s" % str(ALL_VARIANTS)
+      print "All variants must be in {0!s}".format(str(ALL_VARIANTS))
       return False
   if options.predictable:
     VARIANTS = ["default"]
@@ -466,7 +466,7 @@ def ProcessOptions(options):
                               options.command_prefix)
   def CheckTestMode(name, option):
     if not option in ["run", "skip", "dontcare"]:
-      print "Unknown %s mode %s" % (name, option)
+      print "Unknown {0!s} mode {1!s}".format(name, option)
       return False
     return True
   if not CheckTestMode("flaky test", options.flaky_tests):
@@ -556,7 +556,7 @@ def Main():
 
 
 def Execute(arch, mode, args, options, suites, workspace):
-  print(">>> Running tests for %s.%s" % (arch, mode))
+  print(">>> Running tests for {0!s}.{1!s}".format(arch, mode))
 
   shell_dir = options.shell_dir
   if not shell_dir:
@@ -569,11 +569,11 @@ def Execute(arch, mode, args, options, suites, workspace):
       shell_dir = os.path.join(
           workspace,
           options.outdir,
-          "%s.%s" % (arch, MODES[mode]["output_folder"]),
+          "{0!s}.{1!s}".format(arch, MODES[mode]["output_folder"]),
       )
   shell_dir = os.path.relpath(shell_dir)
   if not os.path.exists(shell_dir):
-      raise Exception('Could not find shell_dir: "%s"' % shell_dir)
+      raise Exception('Could not find shell_dir: "{0!s}"'.format(shell_dir))
 
   # Populate context object.
   mode_flags = MODES[mode]["flags"]
@@ -663,7 +663,7 @@ def Execute(arch, mode, args, options, suites, workspace):
           if options.random_seed:
             yield []
           else:
-            yield ["--random-seed=%d" % RandomSeed()]
+            yield ["--random-seed={0:d}".format(RandomSeed())]
       s.tests = [
         t.CopyAddingFlags(t.variant, flags)
         for t in variant_tests

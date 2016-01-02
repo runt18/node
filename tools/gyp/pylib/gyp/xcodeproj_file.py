@@ -273,7 +273,7 @@ class XCObject(object):
   _encode_transforms = []
   i = 0
   while i < ord(' '):
-    _encode_transforms.append('\\U%04x' % i)
+    _encode_transforms.append('\\U{0:04x}'.format(i))
     i = i + 1
   _encode_transforms[7] = '\\a'
   _encode_transforms[8] = '\\b'
@@ -300,8 +300,8 @@ class XCObject(object):
     try:
       name = self.Name()
     except NotImplementedError:
-      return '<%s at 0x%x>' % (self.__class__.__name__, id(self))
-    return '<%s %r at 0x%x>' % (self.__class__.__name__, name, id(self))
+      return '<{0!s} at 0x{1:x}>'.format(self.__class__.__name__, id(self))
+    return '<{0!s} {1!r} at 0x{2:x}>'.format(self.__class__.__name__, name, id(self))
 
   def Copy(self):
     """Make a copy of this object.
@@ -454,7 +454,7 @@ class XCObject(object):
       id_ints = [0, 0, 0]
       for index in xrange(0, digest_int_count):
         id_ints[index % 3] ^= digest_ints[index]
-      self.id = '%08X%08X%08X' % tuple(id_ints)
+      self.id = '{0:08X}{1:08X}{2:08X}'.format(*tuple(id_ints))
 
   def EnsureNoIDCollisions(self):
     """Verifies that no two objects have the same ID.  Checks all descendants.
@@ -466,8 +466,7 @@ class XCObject(object):
       if descendant.id in ids:
         other = ids[descendant.id]
         raise KeyError(
-              'Duplicate ID %s, objects "%s" and "%s" in "%s"' % \
-              (descendant.id, str(descendant._properties),
+              'Duplicate ID {0!s}, objects "{1!s}" and "{2!s}" in "{3!s}"'.format(descendant.id, str(descendant._properties),
                str(other._properties), self._properties['rootObject'].Name()))
       ids[descendant.id] = descendant
 
@@ -693,7 +692,7 @@ class XCObject(object):
       printable += printable_key + ' = ' + printable_value + ';' + after_kv
     except TypeError, e:
       gyp.common.ExceptionAppend(e,
-                                 'while printing key "%s"' % key)
+                                 'while printing key "{0!s}"'.format(key))
       raise
 
     self._XCPrint(file, 0, printable)
@@ -2001,8 +2000,7 @@ class PBXCopyFilesBuildPhase(XCBuildPhase):
       subfolder = 0
       relative_path = path[1:]
     else:
-      raise ValueError('Can\'t use path %s in a %s' % \
-                       (path, self.__class__.__name__))
+      raise ValueError('Can\'t use path {0!s} in a {1!s}'.format(path, self.__class__.__name__))
 
     self._properties['dstPath'] = relative_path
     self._properties['dstSubfolderSpec'] = subfolder
@@ -2062,8 +2060,8 @@ class PBXContainerItemProxy(XCObject):
 
   def __repr__(self):
     props = self._properties
-    name = '%s.gyp:%s' % (props['containerPortal'].Name(), props['remoteInfo'])
-    return '<%s %r at 0x%x>' % (self.__class__.__name__, name, id(self))
+    name = '{0!s}.gyp:{1!s}'.format(props['containerPortal'].Name(), props['remoteInfo'])
+    return '<{0!s} {1!r} at 0x{2:x}>'.format(self.__class__.__name__, name, id(self))
 
   def Name(self):
     # Admittedly not the best name, but it's what Xcode uses.
@@ -2098,7 +2096,7 @@ class PBXTargetDependency(XCObject):
 
   def __repr__(self):
     name = self._properties.get('name') or self._properties['target'].Name()
-    return '<%s %r at 0x%x>' % (self.__class__.__name__, name, id(self))
+    return '<{0!s} {1!r} at 0x{2:x}>'.format(self.__class__.__name__, name, id(self))
 
   def Name(self):
     # Admittedly not the best name, but it's what Xcode uses.

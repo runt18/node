@@ -254,7 +254,7 @@ def WriteActions(target_name, actions, extra_sources, extra_deps,
   """
   for action in actions:
     action_name = StringToCMakeTargetName(action['action_name'])
-    action_target_name = '%s__%s' % (target_name, action_name)
+    action_target_name = '{0!s}__{1!s}'.format(target_name, action_name)
 
     inputs = action['inputs']
     inputs_name = action_target_name + '__input'
@@ -510,7 +510,7 @@ def WriteCopies(target_name, copies, extra_deps, path_to_gyp, output):
   for copy in (file_copy, dir_copy):
     for src, dst in zip(copy.gyp_inputs, copy.gyp_outputs):
       # 'cmake -E copy src dst' will create the 'dst' directory if needed.
-      output.write('COMMAND ${CMAKE_COMMAND} -E %s ' % copy.command)
+      output.write('COMMAND ${{CMAKE_COMMAND}} -E {0!s} '.format(copy.command))
       output.write(src)
       output.write(' ')
       output.write(dst)
@@ -639,8 +639,7 @@ def WriteTarget(namer, qualified_target, target_dicts, build_dir, config_to_use,
 
   cmake_target_type = cmake_target_type_from_gyp_target_type.get(target_type)
   if cmake_target_type is None:
-    print ('Target %s has unknown target type %s, skipping.' %
-          (        target_name,               target_type  ) )
+    print ('Target {0!s} has unknown target type {1!s}, skipping.'.format(target_name, target_type  ) )
     return
 
   SetVariable(output, 'TARGET', target_name)
@@ -1180,11 +1179,11 @@ def PerformBuild(data, configurations, params):
                                               output_dir,
                                               config_name))
     arguments = ['cmake', '-G', 'Ninja']
-    print 'Generating [%s]: %s' % (config_name, arguments)
+    print 'Generating [{0!s}]: {1!s}'.format(config_name, arguments)
     subprocess.check_call(arguments, cwd=build_dir)
 
     arguments = ['ninja', '-C', build_dir]
-    print 'Building [%s]: %s' % (config_name, arguments)
+    print 'Building [{0!s}]: {1!s}'.format(config_name, arguments)
     subprocess.check_call(arguments)
 
 

@@ -55,7 +55,7 @@ def get_build_dir(build_tool, is_iphone=False):
   elif build_tool in ['msvs', 'vs', 'ib']:
     ret = os.path.join(SRC_DIR, 'build')
   else:
-    raise NotImplementedError('Unexpected GYP_GENERATORS (%s)' % build_tool)
+    raise NotImplementedError('Unexpected GYP_GENERATORS ({0!s})'.format(build_tool))
   return os.path.abspath(ret)
 
 
@@ -118,13 +118,13 @@ def delete_build_dir(build_dir):
     else:
       # Couldn't parse the build.ninja file, write a default thing.
       f.write('''rule gn
-command = gn -q gen //out/%s/
+command = gn -q gen //out/{0!s}/
 description = Regenerating ninja files
 
 build build.ninja: gn
 generator = 1
 depfile = build.ninja.d
-''' % (os.path.split(build_dir)[1]))
+'''.format((os.path.split(build_dir)[1])))
 
   # Write a .d file for the build which references a nonexistant file. This
   # will make Ninja always mark the build as dirty.
@@ -211,7 +211,7 @@ def process_options():
   options, args = parser.parse_args()
 
   if args:
-    parser.error('Unknown arguments %s' % args)
+    parser.error('Unknown arguments {0!s}'.format(args))
 
   logging.basicConfig(
       level=logging.DEBUG if options.verbose else logging.ERROR)
@@ -235,7 +235,7 @@ def main():
   for s in landmine_scripts:
     proc = subprocess.Popen([sys.executable, s], stdout=subprocess.PIPE)
     output, _ = proc.communicate()
-    landmines.extend([('%s\n' % l.strip()) for l in output.splitlines()])
+    landmines.extend([('{0!s}\n'.format(l.strip())) for l in output.splitlines()])
   clobber_if_necessary(landmines)
 
   return 0

@@ -114,7 +114,7 @@ class Server(daemon.Daemon):
         self.PeriodicTasks()
         time.sleep(60)
       except Exception, e:
-        print("MAIN LOOP EXCEPTION: %s" % e)
+        print("MAIN LOOP EXCEPTION: {0!s}".format(e))
         self.Shutdown()
         break
       except KeyboardInterrupt:
@@ -123,7 +123,7 @@ class Server(daemon.Daemon):
 
   def Shutdown(self):
     with open(self.relative_perf_filename, "w") as f:
-      f.write("%s" % self.relative_perf)
+      f.write("{0!s}".format(self.relative_perf))
     self.presence_daemon.shutdown()
     self.presence_daemon.server_close()
     self.local_handler.shutdown()
@@ -194,7 +194,7 @@ class Server(daemon.Daemon):
     return fingerprint
 
   def _PubkeyFilename(self, pubkey_fingerprint):
-    return os.path.join(self.root, "trusted", "%s.pem" % pubkey_fingerprint)
+    return os.path.join(self.root, "trusted", "{0!s}.pem".format(pubkey_fingerprint))
 
   def IsTrusted(self, pubkey_fingerprint):
     return os.path.exists(self._PubkeyFilename(pubkey_fingerprint))

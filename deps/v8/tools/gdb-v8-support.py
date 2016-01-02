@@ -90,16 +90,16 @@ def smi_to_int_64(v):
 
 
 def decode_v8_value(v, bitness):
-  base_str = 'v8[%x]' % v
+  base_str = 'v8[{0:x}]'.format(v)
   if has_smi_tag(v):
     if bitness == 32:
-      return base_str + (" SMI(%d)" % smi_to_int_32(v))
+      return base_str + (" SMI({0:d})".format(smi_to_int_32(v)))
     else:
-      return base_str + (" SMI(%d)" % smi_to_int_64(v))
+      return base_str + (" SMI({0:d})".format(smi_to_int_64(v)))
   elif has_failure_tag(v):
     return base_str + " (failure)"
   elif has_heap_object_tag(v):
-    return base_str + (" H(0x%x)" % raw_heap_object(v))
+    return base_str + (" H(0x{0:x})".format(raw_heap_object(v)))
   else:
     return base_str
 
@@ -151,7 +151,7 @@ class V8PrintObject (gdb.Command):
     super (V8PrintObject, self).__init__ ("v8print", gdb.COMMAND_DATA)
   def invoke (self, arg, from_tty):
     v = v8_get_value(arg)
-    gdb.execute('call __gdb_print_v8_object(%d)' % v)
+    gdb.execute('call __gdb_print_v8_object({0:d})'.format(v))
 V8PrintObject()
 
 
@@ -164,7 +164,7 @@ class FindAnywhere (gdb.Command):
   def find (self, startAddr, endAddr, value):
     try:
       result = gdb.execute(
-          "find 0x%s, 0x%s, %s" % (startAddr, endAddr, value),
+          "find 0x{0!s}, 0x{1!s}, {2!s}".format(startAddr, endAddr, value),
           to_string = True)
       if result.find("not found") == -1:
         print result

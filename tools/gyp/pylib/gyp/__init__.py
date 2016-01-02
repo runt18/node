@@ -34,7 +34,7 @@ def DebugOutput(mode, message, *args):
       pass
     if args:
       message %= args
-    print '%s:%s:%d:%s %s' % (mode.upper(), os.path.basename(ctx[0]),
+    print '{0!s}:{1!s}:{2:d}:{3!s} {4!s}'.format(mode.upper(), os.path.basename(ctx[0]),
                               ctx[1], ctx[2], message)
 
 def FindBuildFiles():
@@ -160,7 +160,7 @@ def ShlexEnv(env_name):
 
 def FormatOpt(opt, value):
   if opt.startswith('--'):
-    return '%s=%s' % (opt, value)
+    return '{0!s}={1!s}'.format(opt, value)
   return opt + value
 
 def RegenerateAppendFlag(flag, values, predicate, env_name, options):
@@ -526,7 +526,7 @@ def gyp_main(args):
       valid_configs = targets[flat_list[0]]['configurations'].keys()
       for conf in options.configs:
         if conf not in valid_configs:
-          raise GypError('Invalid config specified via --build: %s' % conf)
+          raise GypError('Invalid config specified via --build: {0!s}'.format(conf))
       generator.PerformBuild(data, options.configs, params)
 
   # Done
@@ -537,7 +537,7 @@ def main(args):
   try:
     return gyp_main(args)
   except GypError, e:
-    sys.stderr.write("gyp: %s\n" % e)
+    sys.stderr.write("gyp: {0!s}\n".format(e))
     return 1
 
 # NOTE: setuptools generated console_scripts calls function with no arguments

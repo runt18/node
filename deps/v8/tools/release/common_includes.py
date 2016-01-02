@@ -124,11 +124,11 @@ def MakeChangeLogBody(commit_messages, auto_format=False):
     raw_title = re.sub(r"(\.|\?|!)$", "", title)
     bug_reference = MakeChangeLogBugReference(body)
     space = " " if bug_reference else ""
-    result += "%s\n" % Fill80("%s%s%s." % (raw_title, space, bug_reference))
+    result += "{0!s}\n".format(Fill80("{0!s}{1!s}{2!s}.".format(raw_title, space, bug_reference)))
 
     # Append the commit's author for reference if not in auto-format mode.
     if not auto_format:
-      result += "%s\n" % Fill80("(%s)" % author.strip())
+      result += "{0!s}\n".format(Fill80("({0!s})".format(author.strip())))
 
     result += "\n"
   return result
@@ -164,13 +164,13 @@ def MakeChangeLogBugReference(body):
   def FormatIssues(prefix, bugs):
     if len(bugs) > 0:
       plural = "s" if len(bugs) > 1 else ""
-      bug_groups.append("%sissue%s %s" % (prefix, plural, ", ".join(bugs)))
+      bug_groups.append("{0!s}issue{1!s} {2!s}".format(prefix, plural, ", ".join(bugs)))
 
   FormatIssues("", v8bugs)
   FormatIssues("Chromium ", crbugs)
 
   if len(bug_groups) > 0:
-    return "(%s)" % ", ".join(bug_groups)
+    return "({0!s})".format(", ".join(bug_groups))
   else:
     return ""
 
@@ -190,9 +190,9 @@ def SortingKey(version):
 def Command(cmd, args="", prefix="", pipe=True, cwd=None):
   cwd = cwd or os.getcwd()
   # TODO(machenbach): Use timeout.
-  cmd_line = "%s %s %s" % (prefix, cmd, args)
-  print "Command: %s" % cmd_line
-  print "in %s" % cwd
+  cmd_line = "{0!s} {1!s} {2!s}".format(prefix, cmd, args)
+  print "Command: {0!s}".format(cmd_line)
+  print "in {0!s}".format(cwd)
   sys.stdout.flush()
   try:
     if pipe:
@@ -338,20 +338,20 @@ class GitInterface(VCInterface):
     if name.startswith('refs/'):
       return name
     if name in ["candidates", "master"]:
-      return "refs/remotes/origin/%s" % name
+      return "refs/remotes/origin/{0!s}".format(name)
     try:
       # Check if branch is in heads.
-      if self.step.Git("show-ref refs/remotes/origin/%s" % name).strip():
-        return "refs/remotes/origin/%s" % name
+      if self.step.Git("show-ref refs/remotes/origin/{0!s}".format(name)).strip():
+        return "refs/remotes/origin/{0!s}".format(name)
     except GitFailedException:
       pass
     try:
       # Check if branch is in branch-heads.
-      if self.step.Git("show-ref refs/remotes/branch-heads/%s" % name).strip():
-        return "refs/remotes/branch-heads/%s" % name
+      if self.step.Git("show-ref refs/remotes/branch-heads/{0!s}".format(name)).strip():
+        return "refs/remotes/branch-heads/{0!s}".format(name)
     except GitFailedException:
       pass
-    self.Die("Can't find remote of %s" % name)
+    self.Die("Can't find remote of {0!s}".format(name))
 
   def Tag(self, tag, remote, message):
     # Wait for the commit to appear. Assumes unique commit message titles (this
@@ -363,15 +363,15 @@ class GitInterface(VCInterface):
       commit = self.step.GitLog(n=1, format="%H", grep=message, branch=remote)
       if commit:
         break
-      print("The commit has not replicated to git. Waiting for %s seconds." %
-            wait_interval)
+      print("The commit has not replicated to git. Waiting for {0!s} seconds.".format(
+            wait_interval))
       self.step._side_effect_handler.Sleep(wait_interval)
     else:
       self.step.Die("Couldn't determine commit for setting the tag. Maybe the "
                     "git updater is lagging behind?")
 
-    self.step.Git("tag %s %s" % (tag, commit))
-    self.step.Git("push origin %s" % tag)
+    self.step.Git("tag {0!s} {1!s}".format(tag, commit))
+    self.step.Git("push origin {0!s}".format(tag))
 
   def CLLand(self):
     self.step.GitCLLand()
@@ -412,11 +412,11 @@ class Step(GitRecipesMixin):
 
   def Run(self):
     # Restore state.
-    state_file = "%s-state.json" % self._config["PERSISTFILE_BASENAME"]
+    state_file = "{0!s}-state.json".format(self._config["PERSISTFILE_BASENAME"])
     if not self._state and os.path.exists(state_file):
       self._state.update(json.loads(FileToText(state_file)))
 
-    print ">>> Step %d: %s" % (self._number, self._text)
+    print ">>> Step {0:d}: {1!s}".format(self._number, self._text)
     try:
       return self.RunStep()
     finally:
@@ -449,10 +449,10 @@ class Step(GitRecipesMixin):
         got_exception = e
       if got_exception or retry_on(result):
         if not wait_plan:  # pragma: no cover
-          raise Exception("Retried too often. Giving up. Reason: %s" %
-                          str(got_exception))
+          raise Exception("Retried too often. Giving up. Reason: {0!s}".format(
+                          str(got_exception)))
         wait_time = wait_plan.pop()
-        print "Waiting for %f seconds." % wait_time
+        print "Waiting for {0:f} seconds.".format(wait_time)
         self._side_effect_handler.Sleep(wait_time)
         print "Retrying..."
       else:
@@ -461,7 +461,7 @@ class Step(GitRecipesMixin):
   def ReadLine(self, default=None):
     # Don't prompt in forced mode.
     if self._options.force_readline_defaults and default is not None:
-      print "%s (forced)" % default
+      print "{0!s} (forced)".format(default)
       return default
     else:
       return self._side_effect_handler.ReadLine()
@@ -476,7 +476,7 @@ class Step(GitRecipesMixin):
         "git", args, prefix, pipe, cwd=cwd or self.default_cwd)
     result = self.Retry(cmd, retry_on, [5, 30])
     if result is None:
-      raise GitFailedException("'git %s' failed." % args)
+      raise GitFailedException("'git {0!s}' failed.".format(args))
     return result
 
   def Editor(self, args):
@@ -497,7 +497,7 @@ class Step(GitRecipesMixin):
 
   def Die(self, msg=""):
     if msg != "":
-      print "Error: %s" % msg
+      print "Error: {0!s}".format(msg)
     print "Exiting"
     raise Exception(msg)
 
@@ -507,19 +507,19 @@ class Step(GitRecipesMixin):
       self.Die(msg)
 
   def Confirm(self, msg):
-    print "%s [Y/n] " % msg,
+    print "{0!s} [Y/n] ".format(msg),
     answer = self.ReadLine(default="Y")
     return answer == "" or answer == "Y" or answer == "y"
 
   def DeleteBranch(self, name, cwd=None):
     for line in self.GitBranch(cwd=cwd).splitlines():
-      if re.match(r"\*?\s*%s$" % re.escape(name), line):
-        msg = "Branch %s exists, do you want to delete it?" % name
+      if re.match(r"\*?\s*{0!s}$".format(re.escape(name)), line):
+        msg = "Branch {0!s} exists, do you want to delete it?".format(name)
         if self.Confirm(msg):
           self.GitDeleteBranch(name, cwd=cwd)
-          print "Branch %s deleted." % name
+          print "Branch {0!s} deleted.".format(name)
         else:
-          msg = "Can't continue. Please delete branch %s and try again." % name
+          msg = "Can't continue. Please delete branch {0!s} and try again.".format(name)
           self.Die(msg)
 
   def InitialEnvironmentChecks(self, cwd):
@@ -553,7 +553,7 @@ class Step(GitRecipesMixin):
     self.GitDeleteBranch(self._config["BRANCHNAME"])
 
     # Clean up all temporary files.
-    for f in glob.iglob("%s*" % self._config["PERSISTFILE_BASENAME"]):
+    for f in glob.iglob("{0!s}*".format(self._config["PERSISTFILE_BASENAME"])):
       if os.path.isfile(f):
         os.remove(f)
       if os.path.isdir(f):
@@ -561,10 +561,10 @@ class Step(GitRecipesMixin):
 
   def ReadAndPersistVersion(self, prefix=""):
     def ReadAndPersist(var_name, def_name):
-      match = re.match(r"^#define %s\s+(\d*)" % def_name, line)
+      match = re.match(r"^#define {0!s}\s+(\d*)".format(def_name), line)
       if match:
         value = match.group(1)
-        self["%s%s" % (prefix, var_name)] = value
+        self["{0!s}{1!s}".format(prefix, var_name)] = value
     for line in LinesInFile(os.path.join(self.default_cwd, VERSION_FILE)):
       for (var_name, def_name) in [("major", "V8_MAJOR_VERSION"),
                                    ("minor", "V8_MINOR_VERSION"),
@@ -606,7 +606,7 @@ class Step(GitRecipesMixin):
       self.WaitForResolvingConflicts(patch_file)
 
   def GetVersionTag(self, revision):
-    tag = self.Git("describe --tags %s" % revision).strip()
+    tag = self.Git("describe --tags {0!s}".format(revision)).strip()
     if VERSION_RE.match(tag):
       return tag
     else:
@@ -620,8 +620,8 @@ class Step(GitRecipesMixin):
     time_now = int(self._side_effect_handler.GetUTCStamp())
 
     # List every tag from a given period.
-    revisions = self.Git("rev-list --max-age=%d --tags" %
-                         int(time_now - max_age)).strip()
+    revisions = self.Git("rev-list --max-age={0:d} --tags".format(
+                         int(time_now - max_age))).strip()
 
     # Filter out revisions who's tag is off by one or more commits.
     return filter(lambda r: self.GetVersionTag(r), revisions.splitlines())
@@ -675,9 +675,9 @@ class Step(GitRecipesMixin):
       # This is a new-style v8 version branched from master. The commit
       # "latest_hash" is the version-file change. Its parent is the release
       # base on master.
-      return self.GitLog(n=1, format="%H", git_hash="%s^" % latest_hash)
+      return self.GitLog(n=1, format="%H", git_hash="{0!s}^".format(latest_hash))
 
-    self.Die("Unknown latest release: %s" % latest_hash)
+    self.Die("Unknown latest release: {0!s}".format(latest_hash))
 
   def ArrayToVersion(self, prefix):
     return ".".join([self[prefix + "major"],
@@ -709,7 +709,7 @@ class Step(GitRecipesMixin):
       elif (self[prefix + "candidate"] and
             line.startswith("#define V8_IS_CANDIDATE_VERSION")):
         line = re.sub("\d+$", self[prefix + "candidate"], line)
-      output += "%s\n" % line
+      output += "{0!s}\n".format(line)
     TextToFile(output, version_file)
 
 
@@ -731,7 +731,7 @@ class UploadStep(Step):
 
   def RunStep(self):
     if self._options.reviewer:
-      print "Using account %s for review." % self._options.reviewer
+      print "Using account {0!s} for review.".format(self._options.reviewer)
       reviewer = self._options.reviewer
     else:
       print "Please enter the email address of a V8 reviewer for your patch: ",
@@ -761,9 +761,8 @@ class DetermineV8Sheriff(Step):
       # Optimistically assume that google and chromium account name are the
       # same.
       self["sheriff"] = g_name + "@chromium.org"
-      self._options.reviewer = ("%s,%s" %
-                                (self["sheriff"], self._options.reviewer))
-      print "Found active sheriff: %s" % self["sheriff"]
+      self._options.reviewer = ("{0!s},{1!s}".format(self["sheriff"], self._options.reviewer))
+      print "Found active sheriff: {0!s}".format(self["sheriff"])
     else:
       print "No active sheriff found."
 
@@ -835,7 +834,7 @@ class ScriptsBase(object):
 
     # Process common options.
     if options.step < 0:  # pragma: no cover
-      print "Bad step number %d" % options.step
+      print "Bad step number {0:d}".format(options.step)
       parser.print_help()
       return None
 
@@ -864,7 +863,7 @@ class ScriptsBase(object):
     if not options:
       return 1
 
-    state_file = "%s-state.json" % self._config["PERSISTFILE_BASENAME"]
+    state_file = "{0!s}-state.json".format(self._config["PERSISTFILE_BASENAME"])
     if options.step == 0 and os.path.exists(state_file):
       os.remove(state_file)
 

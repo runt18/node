@@ -63,22 +63,22 @@ def WriteGraph(edges):
       # the display by making it a box without an internal node.
       target = targets[0]
       build_file, target_name, toolset = ParseTarget(target)
-      print '  "%s" [shape=box, label="%s\\n%s"]' % (target, filename,
+      print '  "{0!s}" [shape=box, label="{1!s}\\n{2!s}"]'.format(target, filename,
                                                      target_name)
     else:
       # Group multiple nodes together in a subgraph.
-      print '  subgraph "cluster_%s" {' % filename
-      print '    label = "%s"' % filename
+      print '  subgraph "cluster_{0!s}" {{'.format(filename)
+      print '    label = "{0!s}"'.format(filename)
       for target in targets:
         build_file, target_name, toolset = ParseTarget(target)
-        print '    "%s" [label="%s"]' % (target, target_name)
+        print '    "{0!s}" [label="{1!s}"]'.format(target, target_name)
       print '  }'
 
   # Now that we've placed all the nodes within subgraphs, output all
   # the edges between nodes.
   for src, dsts in edges.items():
     for dst in dsts:
-      print '  "%s" -> "%s"' % (src, dst)
+      print '  "{0!s}" -> "{1!s}"'.format(src, dst)
 
   print '}'
 
@@ -87,7 +87,7 @@ def main():
   if len(sys.argv) < 2:
     print >>sys.stderr, __doc__
     print >>sys.stderr
-    print >>sys.stderr, 'usage: %s target1 target2...' % (sys.argv[0])
+    print >>sys.stderr, 'usage: {0!s} target1 target2...'.format((sys.argv[0]))
     return 1
 
   edges = LoadEdges('dump.json', sys.argv[1:])

@@ -45,7 +45,7 @@ def XmlToString(content, encoding='utf-8', pretty=False):
     The XML content as a string.
   """
   # We create a huge list of all the elements of the file.
-  xml_parts = ['<?xml version="1.0" encoding="%s"?>' % encoding]
+  xml_parts = ['<?xml version="1.0" encoding="{0!s}"?>'.format(encoding)]
   if pretty:
     xml_parts.append('\n')
   _ConstructContentList(xml_parts, content, pretty)
@@ -80,7 +80,7 @@ def _ConstructContentList(xml_parts, specification, pretty, level=0):
   rest = specification[1:]
   if rest and isinstance(rest[0], dict):
     for at, val in sorted(rest[0].iteritems()):
-      xml_parts.append(' %s="%s"' % (at, _XmlEscape(val, attr=True)))
+      xml_parts.append(' {0!s}="{1!s}"'.format(at, _XmlEscape(val, attr=True)))
     rest = rest[1:]
   if rest:
     xml_parts.append('>')
@@ -97,9 +97,9 @@ def _ConstructContentList(xml_parts, specification, pretty, level=0):
         _ConstructContentList(xml_parts, child_spec, pretty, level + 1)
     if multi_line and indentation:
       xml_parts.append(indentation)
-    xml_parts.append('</%s>%s' % (name, new_line))
+    xml_parts.append('</{0!s}>{1!s}'.format(name, new_line))
   else:
-    xml_parts.append('/>%s' % new_line)
+    xml_parts.append('/>{0!s}'.format(new_line))
 
 
 def WriteXmlIfChanged(content, path, encoding='utf-8', pretty=False,
@@ -143,7 +143,7 @@ _xml_escape_map = {
 
 
 _xml_escape_re = re.compile(
-    "(%s)" % "|".join(map(re.escape, _xml_escape_map.keys())))
+    "({0!s})".format("|".join(map(re.escape, _xml_escape_map.keys()))))
 
 
 def _XmlEscape(value, attr=False):

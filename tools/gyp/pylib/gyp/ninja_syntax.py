@@ -32,16 +32,16 @@ class Writer(object):
             return
         if isinstance(value, list):
             value = ' '.join(filter(None, value))  # Filter out empty strings.
-        self._line('%s = %s' % (key, value), indent)
+        self._line('{0!s} = {1!s}'.format(key, value), indent)
 
     def pool(self, name, depth):
-        self._line('pool %s' % name)
+        self._line('pool {0!s}'.format(name))
         self.variable('depth', depth, indent=1)
 
     def rule(self, name, command, description=None, depfile=None,
              generator=False, pool=None, restat=False, rspfile=None,
              rspfile_content=None, deps=None):
-        self._line('rule %s' % name)
+        self._line('rule {0!s}'.format(name))
         self.variable('command', command, indent=1)
         if description:
             self.variable('description', description, indent=1)
@@ -76,7 +76,7 @@ class Writer(object):
             all_inputs.append('||')
             all_inputs.extend(order_only)
 
-        self._line('build %s: %s' % (' '.join(out_outputs),
+        self._line('build {0!s}: {1!s}'.format(' '.join(out_outputs),
                                         ' '.join([rule] + all_inputs)))
 
         if variables:
@@ -91,13 +91,13 @@ class Writer(object):
         return outputs
 
     def include(self, path):
-        self._line('include %s' % path)
+        self._line('include {0!s}'.format(path))
 
     def subninja(self, path):
-        self._line('subninja %s' % path)
+        self._line('subninja {0!s}'.format(path))
 
     def default(self, paths):
-        self._line('default %s' % ' '.join(self._as_list(paths)))
+        self._line('default {0!s}'.format(' '.join(self._as_list(paths))))
 
     def _count_dollars_before_index(self, s, i):
       """Returns the number of '$' characters right in front of s[i]."""

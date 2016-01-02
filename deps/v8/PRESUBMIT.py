@@ -117,7 +117,7 @@ def _CheckUnwantedDependencies(input_api, output_api):
   warning_descriptions = []
   for path, rule_type, rule_description in deps_checker.CheckAddedCppIncludes(
       added_includes):
-    description_with_path = '%s\n    %s' % (path, rule_description)
+    description_with_path = '{0!s}\n    {1!s}'.format(path, rule_description)
     if rule_type == Rule.DISALLOW:
       error_descriptions.append(description_with_path)
     else:
@@ -162,7 +162,7 @@ def _CheckNoInlineHeaderIncludesInNormalHeaders(input_api, output_api):
     for line_number, line in f.ChangedContents():
       if (include_directive_pattern.search(line)):
         problems.append(
-          '%s:%d\n    %s' % (local_path, line_number, line.strip()))
+          '{0!s}:{1:d}\n    {2!s}'.format(local_path, line_number, line.strip()))
 
   if problems:
     return [output_api.PresubmitPromptOrNotify(include_warning, problems)]
@@ -182,10 +182,10 @@ def _CheckNoProductionCodeUsingTestOnlyFunctions(input_api, output_api):
   file_inclusion_pattern = r'.+\.cc'
 
   base_function_pattern = r'[ :]test::[^\s]+|ForTest(ing)?|for_test(ing)?'
-  inclusion_pattern = input_api.re.compile(r'(%s)\s*\(' % base_function_pattern)
-  comment_pattern = input_api.re.compile(r'//.*(%s)' % base_function_pattern)
+  inclusion_pattern = input_api.re.compile(r'({0!s})\s*\('.format(base_function_pattern))
+  comment_pattern = input_api.re.compile(r'//.*({0!s})'.format(base_function_pattern))
   exclusion_pattern = input_api.re.compile(
-    r'::[A-Za-z0-9_]+(%s)|(%s)[^;]+\{' % (
+    r'::[A-Za-z0-9_]+({0!s})|({1!s})[^;]+\{{'.format(
       base_function_pattern, base_function_pattern))
 
   def FilterFile(affected_file):
@@ -205,7 +205,7 @@ def _CheckNoProductionCodeUsingTestOnlyFunctions(input_api, output_api):
           not comment_pattern.search(line) and
           not exclusion_pattern.search(line)):
         problems.append(
-          '%s:%d\n    %s' % (local_path, line_number, line.strip()))
+          '{0!s}:{1:d}\n    {2!s}'.format(local_path, line_number, line.strip()))
 
   if problems:
     return [output_api.PresubmitPromptOrNotify(_TEST_ONLY_WARNING, problems)]

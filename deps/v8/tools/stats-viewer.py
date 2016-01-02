@@ -98,9 +98,9 @@ class StatsViewer(object):
     something goes wrong print an informative message and exit the
     program."""
     if not os.path.exists(self.data_name):
-      maps_name = "/proc/%s/maps" % self.data_name
+      maps_name = "/proc/{0!s}/maps".format(self.data_name)
       if not os.path.exists(maps_name):
-        print "\"%s\" is neither a counter file nor a PID." % self.data_name
+        print "\"{0!s}\" is neither a counter file nor a PID.".format(self.data_name)
         sys.exit(1)
       maps_file = open(maps_name, "r")
       try:
@@ -110,7 +110,7 @@ class StatsViewer(object):
             self.data_name = m.group(0)
             break
         if self.data_name is None:
-          print "Can't find counter file in maps for PID %s." % self.data_name
+          print "Can't find counter file in maps for PID {0!s}.".format(self.data_name)
           sys.exit(1)
       finally:
         maps_file.close()
@@ -123,7 +123,7 @@ class StatsViewer(object):
       return CounterCollection(data_access)
     elif data_access.IntAt(0) == CHROME_COUNTERS_FILE_MAGIC_NUMBER:
       return ChromeCounterCollection(data_access)
-    print "File %s is not stats data." % self.data_name
+    print "File {0!s} is not stats data.".format(self.data_name)
     sys.exit(1)
 
   def CleanUp(self):
@@ -163,7 +163,7 @@ class StatsViewer(object):
 
   def UpdateTime(self):
     """Update the title of the window with the current time."""
-    self.root.title("Stats Viewer [updated %s]" % time.strftime("%H:%M:%S"))
+    self.root.title("Stats Viewer [updated {0!s}]".format(time.strftime("%H:%M:%S")))
 
   def ScheduleUpdate(self):
     """Schedules the next ui update."""

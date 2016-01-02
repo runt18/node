@@ -48,7 +48,7 @@ class TimersTestCase(test.TestCase):
     self.mode = mode
 
   def GetLabel(self):
-    return "%s %s" % (self.mode, self.GetName())
+    return "{0!s} {1!s}".format(self.mode, self.GetName())
 
   def GetName(self):
     return self.path[-1]

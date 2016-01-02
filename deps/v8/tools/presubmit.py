@@ -78,7 +78,7 @@ def CppLintWorker(command):
       out_line = process.stderr.readline()
       if out_line == '' and process.poll() != None:
         if error_count == -1:
-          print "Failed to process %s" % command.pop()
+          print "Failed to process {0!s}".format(command.pop())
           return 1
         break
       m = LINT_OUTPUT_PATTERN.match(out_line)
@@ -243,7 +243,7 @@ class CppLintProcessor(SourceFileProcessor):
         good_files_cache.RemoveFile(files[i])
 
     total_errors = sum(results)
-    print "Total errors found: %d" % total_errors
+    print "Total errors found: {0:d}".format(total_errors)
     good_files_cache.Save()
     return total_errors == 0
 
@@ -329,11 +329,11 @@ class SourceProcessor(SourceFileProcessor):
     base = basename(name)
     if not base in SourceProcessor.IGNORE_TABS:
       if '\t' in contents:
-        print "%s contains tabs" % name
+        print "{0!s} contains tabs".format(name)
         result = False
     if not base in SourceProcessor.IGNORE_COPYRIGHTS:
       if not COPYRIGHT_HEADER_PATTERN.search(contents):
-        print "%s is missing a correct copyright header." % name
+        print "{0!s} is missing a correct copyright header.".format(name)
         result = False
     if ' \n' in contents or contents.endswith(' '):
       line = 0
@@ -346,12 +346,12 @@ class SourceProcessor(SourceFileProcessor):
         lines.append(str(line))
       linenumbers = ', '.join(lines)
       if len(lines) > 1:
-        print "%s has trailing whitespaces in lines %s." % (name, linenumbers)
+        print "{0!s} has trailing whitespaces in lines {1!s}.".format(name, linenumbers)
       else:
-        print "%s has trailing whitespaces in line %s." % (name, linenumbers)
+        print "{0!s} has trailing whitespaces in line {1!s}.".format(name, linenumbers)
       result = False
     if not contents.endswith('\n') or contents.endswith('\n\n'):
-      print "%s does not end with a single new line." % name
+      print "{0!s} does not end with a single new line.".format(name)
       result = False
     # Check two empty lines between declarations.
     if name.endswith(".cc"):
@@ -381,7 +381,7 @@ class SourceProcessor(SourceFileProcessor):
     if "mjsunit" in name:
       match = FLAGS_LINE.search(contents)
       if match:
-        print "%s Flags should use '-' (not '_')" % name
+        print "{0!s} Flags should use '-' (not '_')".format(name)
         result = False
     return result
 
@@ -397,7 +397,7 @@ class SourceProcessor(SourceFileProcessor):
           violations += 1
       finally:
         handle.close()
-    print "Total violating files: %s" % violations
+    print "Total violating files: {0!s}".format(violations)
     return success
 
 

@@ -55,7 +55,7 @@ def PrepareCmake():
 
   print '@@@BUILD_STEP Build CMake@@@'
   CallSubProcess(
-      ['/bin/bash', 'bootstrap', '--prefix=%s' % CMAKE_DIR],
+      ['/bin/bash', 'bootstrap', '--prefix={0!s}'.format(CMAKE_DIR)],
       cwd=CMAKE_DIR)
 
   CallSubProcess( ['make', 'cmake'], cwd=CMAKE_DIR)
@@ -97,7 +97,7 @@ def GypTestFormat(title, format=None, msvs_version=None, tests=[]):
 def GypBuild():
   # Dump out/ directory.
   print '@@@BUILD_STEP cleanup@@@'
-  print 'Removing %s...' % OUT_DIR
+  print 'Removing {0!s}...'.format(OUT_DIR)
   shutil.rmtree(OUT_DIR, ignore_errors=True)
   print 'Done.'
 

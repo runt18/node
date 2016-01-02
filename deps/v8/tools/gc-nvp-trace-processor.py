@@ -71,16 +71,16 @@ class Item(object):
     return self.field
 
   def to_gnuplot(self, context):
-    args = ['"%s"' % context.datafile,
-            'using %s' % context.format_fieldref(self.field),
-            'title "%s"' % self.title,
-            'axis %s' % self.axis]
+    args = ['"{0!s}"'.format(context.datafile),
+            'using {0!s}'.format(context.format_fieldref(self.field)),
+            'title "{0!s}"'.format(self.title),
+            'axis {0!s}'.format(self.axis)]
     if 'style' in self.props:
-      args.append('with %s' % self.props['style'])
+      args.append('with {0!s}'.format(self.props['style']))
     if 'lc' in self.props:
-      args.append('lc rgb "%s"' % self.props['lc'])
+      args.append('lc rgb "{0!s}"'.format(self.props['lc']))
     if 'fs' in self.props:
-      args.append('fs %s' % self.props['fs'])
+      args.append('fs {0!s}'.format(self.props['fs']))
     return ' '.join(args)
 
 class Plot(object):
@@ -152,7 +152,7 @@ def generate_script_and_datafile(plot, trace, datafile, output):
   generate_datafile(datafile, trace, fields)
   script = [
       'set terminal png',
-      'set output "%s"' % output,
+      'set output "{0!s}"'.format(output),
       'set autoscale',
       'set ytics nomirror',
       'set xtics nomirror',
@@ -174,10 +174,10 @@ def plot_all(plots, trace, prefix):
   charts = []
 
   for plot in plots:
-    outfilename = "%s_%d.png" % (prefix, len(charts))
+    outfilename = "{0!s}_{1:d}.png".format(prefix, len(charts))
     charts.append(outfilename)
     script = generate_script_and_datafile(plot, trace, '~datafile', outfilename)
-    print 'Plotting %s...' % outfilename
+    print 'Plotting {0!s}...'.format(outfilename)
     gnuplot(script)
 
   return charts
@@ -306,7 +306,7 @@ def process_trace(filename):
     power = 1
     for i in range(len(suffixes)):
       if size < power*1024:
-        return "%.1f" % (float(size) / power) + " " + suffixes[i]
+        return "{0:.1f}".format((float(size) / power)) + " " + suffixes[i]
       power *= 1024
 
   def throughput(name, trace):
@@ -315,13 +315,11 @@ def process_trace(filename):
     total_gc = calc_total(trace, 'pause')
     if total_gc == 0:
       return
-    out.write('GC %s Throughput (after): %s / %s ms = %s/ms<br/>' %
-              (name,
+    out.write('GC {0!s} Throughput (after): {1!s} / {2!s} ms = {3!s}/ms<br/>'.format(name,
                HumanReadable(total_live_after),
                total_gc,
                HumanReadable(total_live_after / total_gc)))
-    out.write('GC %s Throughput (before): %s / %s ms = %s/ms<br/>' %
-              (name,
+    out.write('GC {0!s} Throughput (before): {1!s} / {2!s} ms = {3!s}/ms<br/>'.format(name,
                HumanReadable(total_live_before),
                total_gc,
                HumanReadable(total_live_before / total_gc)))
@@ -347,13 +345,13 @@ def process_trace(filename):
     throughput('OLDSPACE', globalgcs)
     out.write('<br/>')
     for chart in charts:
-      out.write('<img src="%s">' % chart)
+      out.write('<img src="{0!s}">'.format(chart))
       out.write('</body></html>')
 
-  print "%s generated." % (filename + '.html')
+  print "{0!s} generated.".format((filename + '.html'))
 
 if len(sys.argv) != 2:
-  print "Usage: %s <GC-trace-filename>" % sys.argv[0]
+  print "Usage: {0!s} <GC-trace-filename>".format(sys.argv[0])
   sys.exit(1)
 
 process_trace(sys.argv[1])

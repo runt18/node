@@ -75,7 +75,7 @@ class Result:
     else:
       compare_num = 100*self.master_result_/self.result_ - 100
     if abs(compare_num) > 0.1:
-      self.percentage_string_ = "%3.1f" % (compare_num)
+      self.percentage_string_ = "{0:3.1f}".format((compare_num))
       z = ComputeZ(self.master_result_, self.master_sigma_, self.result_, count)
       p = ComputeProbability(z)
       if p < PROBABILITY_CONSIDERED_SIGNIFICANT:

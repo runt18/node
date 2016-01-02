@@ -54,7 +54,7 @@ def _SuffixName(name, suffix):
     Target name with suffix added (foo_suffix#target)
   """
   parts = name.rsplit('#', 1)
-  parts[0] = '%s_%s' % (parts[0], suffix)
+  parts[0] = '{0!s}_{1!s}'.format(parts[0], suffix)
   return '#'.join(parts)
 
 
@@ -159,7 +159,7 @@ def _GetPdbPath(target_dict, config_name, vars):
 
 
   pdb_base = target_dict.get('product_name', target_dict['target_name'])
-  pdb_base = '%s.%s.pdb' % (pdb_base, TARGET_TYPE_EXT[target_dict['type']])
+  pdb_base = '{0!s}.{1!s}.pdb'.format(pdb_base, TARGET_TYPE_EXT[target_dict['type']])
   pdb_path = vars['PRODUCT_DIR'] + '/' + pdb_base
 
   return pdb_path

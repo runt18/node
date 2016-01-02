@@ -37,7 +37,7 @@ generator_default_variables = {
 }
 
 for v in _generator_identity_variables:
-  generator_default_variables[v] = '<(%s)' % v
+  generator_default_variables[v] = '<({0!s})'.format(v)
 
 
 def GenerateOutput(target_list, target_dicts, data, params):
@@ -50,7 +50,6 @@ def GenerateOutput(target_list, target_dicts, data, params):
   # Use a banner that looks like the stock Python one and like what
   # code.interact uses by default, but tack on something to indicate what
   # locals are available, and identify gypsh.
-  banner='Python %s on %s\nlocals.keys() = %s\ngypsh' % \
-         (sys.version, sys.platform, repr(sorted(locals.keys())))
+  banner='Python {0!s} on {1!s}\nlocals.keys() = {2!s}\ngypsh'.format(sys.version, sys.platform, repr(sorted(locals.keys())))
 
   code.interact(banner, local=locals)

@@ -32,7 +32,7 @@ def mask_comments(input):
 
 
 def quote_replace(matchobj):
-  return "%s%s%s%s" % (matchobj.group(1),
+  return "{0!s}{1!s}{2!s}{3!s}".format(matchobj.group(1),
                        matchobj.group(2),
                        'x'*len(matchobj.group(3)),
                        matchobj.group(2))

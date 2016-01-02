@@ -191,7 +191,7 @@ class Test262TestSuite(testsuite.TestSuite):
   def DownloadData(self):
     revision = TEST_262_ARCHIVE_REVISION
     archive_url = TEST_262_URL % revision
-    archive_name = os.path.join(self.root, "tc39-test262-%s.tar.gz" % revision)
+    archive_name = os.path.join(self.root, "tc39-test262-{0!s}.tar.gz".format(revision))
     directory_name = os.path.join(self.root, "data")
     directory_old_name = os.path.join(self.root, "data.old")
 
@@ -206,30 +206,30 @@ class Test262TestSuite(testsuite.TestSuite):
         os.remove(os.path.join(self.root, f))
 
     if not os.path.exists(archive_name):
-      print "Downloading test data from %s ..." % archive_url
+      print "Downloading test data from {0!s} ...".format(archive_url)
       utils.URLRetrieve(archive_url, archive_name)
       if os.path.exists(directory_name):
         if os.path.exists(directory_old_name):
           shutil.rmtree(directory_old_name)
         os.rename(directory_name, directory_old_name)
     if not os.path.exists(directory_name):
-      print "Extracting test262-%s.tar.gz ..." % revision
+      print "Extracting test262-{0!s}.tar.gz ...".format(revision)
       md5 = hashlib.md5()
       with open(archive_name, "rb") as f:
         for chunk in iter(lambda: f.read(8192), ""):
           md5.update(chunk)
-      print "MD5 hash is %s" % md5.hexdigest()
+      print "MD5 hash is {0!s}".format(md5.hexdigest())
       if md5.hexdigest() != TEST_262_ARCHIVE_MD5:
         os.remove(archive_name)
-        print "MD5 expected %s" % TEST_262_ARCHIVE_MD5
+        print "MD5 expected {0!s}".format(TEST_262_ARCHIVE_MD5)
         raise Exception("MD5 hash mismatch of test data file")
       archive = tarfile.open(archive_name, "r:gz")
       if sys.platform in ("win32", "cygwin"):
         # Magic incantation to allow longer path names on Windows.
-        archive.extractall(u"\\\\?\\%s" % self.root)
+        archive.extractall(u"\\\\?\\{0!s}".format(self.root))
       else:
         archive.extractall(self.root)
-      os.rename(os.path.join(self.root, "tc39-test262-%s" % revision),
+      os.rename(os.path.join(self.root, "tc39-test262-{0!s}".format(revision)),
                 directory_name)
 
 

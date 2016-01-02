@@ -50,7 +50,7 @@ class WinTool(object):
       m = _LINK_EXE_OUT_ARG.match(arg)
       if m:
         endpoint_name = re.sub(r'\W+', '',
-            '%s_%d' % (m.group('out'), os.getpid()))
+            '{0!s}_{1:d}'.format(m.group('out'), os.getpid()))
         break
 
     if endpoint_name is None:
@@ -66,7 +66,7 @@ class WinTool(object):
     if len(args) < 1:
       raise Exception("Not enough arguments")
 
-    method = "Exec%s" % self._CommandifyName(args[0])
+    method = "Exec{0!s}".format(self._CommandifyName(args[0]))
     return getattr(self, method)(*args[1:])
 
   def _CommandifyName(self, name_string):
@@ -166,7 +166,7 @@ class WinTool(object):
         subprocess.check_call(
             '%(python)s gyp-win-tool rc-wrapper %(arch)s %(rc)s '
             '%(out)s.manifest.rc' % variables)
-        add_to_ld = ' %(out)s.manifest.res' % variables
+        add_to_ld = ' {out!s}.manifest.res'.format(**variables)
     subprocess.check_call(ldcmd + add_to_ld)
 
     # Run mt.exe on the theoretically complete manifest we generated, merging
@@ -181,8 +181,8 @@ class WinTool(object):
           '%(python)s gyp-win-tool manifest-wrapper %(arch)s %(mt)s -nologo '
           '-manifest %(out)s.manifest %(intermediate_manifest)s '
           '-out:%(out)s.assert.manifest' % variables)
-      assert_manifest = '%(out)s.assert.manifest' % variables
-      our_manifest = '%(out)s.manifest' % variables
+      assert_manifest = '{out!s}.assert.manifest'.format(**variables)
+      our_manifest = '{out!s}.manifest'.format(**variables)
       # Load and normalize the manifests. mt.exe sometimes removes whitespace,
       # and sometimes doesn't unfortunately.
       with open(our_manifest, 'rb') as our_f:
@@ -192,7 +192,7 @@ class WinTool(object):
       if our_data != assert_data:
         os.unlink(out)
         def dump(filename):
-          sys.stderr.write('%s\n-----\n' % filename)
+          sys.stderr.write('{0!s}\n-----\n'.format(filename))
           with open(filename, 'rb') as f:
             sys.stderr.write(f.read() + '\n-----\n')
         dump(intermediate_manifest)
@@ -224,7 +224,7 @@ class WinTool(object):
     and resource name which can be "1" (for executables) or "2" (for DLLs)."""
     manifest_path, resource_path, resource_name = args
     with open(resource_path, 'wb') as output:
-      output.write('#include <windows.h>\n%s RT_MANIFEST "%s"' % (
+      output.write('#include <windows.h>\n{0!s} RT_MANIFEST "{1!s}"'.format(
         resource_name,
         os.path.abspath(manifest_path).replace('\\', '/')))
 

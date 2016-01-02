@@ -71,7 +71,7 @@ generator_supports_multiple_toolsets = True
 # module should use < for the early phase and then switch to > for the late
 # phase.  Bonus points for carrying @ back into the output too.
 for v in _generator_identity_variables:
-  generator_default_variables[v] = '<(%s)' % v
+  generator_default_variables[v] = '<({0!s})'.format(v)
 
 
 def GenerateOutput(target_list, target_dicts, data, params):
