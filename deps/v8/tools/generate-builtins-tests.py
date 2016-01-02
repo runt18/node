@@ -28,7 +28,9 @@ def GetRandomObject():
 g_var_index = 0
 
 
-def GetVars(result, num, first = []):
+def GetVars(result, num, first = None):
+  if first is None:
+    first = []
   global g_var_index
   variables = []
   for i in range(num):
