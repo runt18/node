@@ -42,8 +42,8 @@ import sys
 import tempfile
 
 def Check(output, errors):
-  failed = any([s.startswith('/system/bin/sh:') or s.startswith('ANDROID')
-                for s in output.split('\n')])
+  failed = any( s.startswith('/system/bin/sh:') or s.startswith('ANDROID')
+                for s in output.split('\n'))
   return 1 if failed else 0
 
 def Execute(cmdline):
