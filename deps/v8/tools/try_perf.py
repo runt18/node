@@ -36,10 +36,10 @@ def main():
   for option in sorted(BOTS):
     parser.add_argument(
         option, dest='bots', action='append_const', const=BOTS[option],
-        help='Add %s trybot.' % BOTS[option])
+        help='Add {0!s} trybot.'.format(BOTS[option]))
   options = parser.parse_args()
   if not options.bots:
-    print 'No trybots specified. Using default %s.' % ','.join(DEFAULT_BOTS)
+    print 'No trybots specified. Using default {0!s}.'.format(','.join(DEFAULT_BOTS))
     options.bots = DEFAULT_BOTS
 
   if not options.benchmarks:
@@ -54,11 +54,11 @@ def main():
       'gclient', shell=True, stderr=subprocess.STDOUT, cwd=V8_BASE)
 
   cmd = ['git cl try -m internal.client.v8']
-  cmd += ['-b %s' % bot for bot in options.bots]
-  benchmarks = ['"%s"' % benchmark for benchmark in options.benchmarks]
-  cmd += ['-p \'testfilter=[%s]\'' % ','.join(benchmarks)]
+  cmd += ['-b {0!s}'.format(bot) for bot in options.bots]
+  benchmarks = ['"{0!s}"'.format(benchmark) for benchmark in options.benchmarks]
+  cmd += ['-p \'testfilter=[{0!s}]\''.format(','.join(benchmarks))]
   if options.extra_flags:
-    cmd += ['-p \'extra_flags="%s"\'' % options.extra_flags]
+    cmd += ['-p \'extra_flags="{0!s}"\''.format(options.extra_flags)]
   subprocess.check_call(' '.join(cmd), shell=True, cwd=V8_BASE)
 
 

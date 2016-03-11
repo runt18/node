@@ -36,16 +36,16 @@ def _Replacement_writexml(self, writer, indent="", addindent="", newl=""):
   a_names.sort()
 
   for a_name in a_names:
-    writer.write(" %s=\"" % a_name)
+    writer.write(" {0!s}=\"".format(a_name))
     _Replacement_write_data(writer, attrs[a_name].value, is_attrib=True)
     writer.write("\"")
   if self.childNodes:
-    writer.write(">%s" % newl)
+    writer.write(">{0!s}".format(newl))
     for node in self.childNodes:
       node.writexml(writer, indent + addindent, addindent, newl)
-    writer.write("%s</%s>%s" % (indent, self.tagName, newl))
+    writer.write("{0!s}</{1!s}>{2!s}".format(indent, self.tagName, newl))
   else:
-    writer.write("/>%s" % newl)
+    writer.write("/>{0!s}".format(newl))
 
 
 class XmlFix(object):

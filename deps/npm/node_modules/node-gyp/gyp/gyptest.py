@@ -53,7 +53,7 @@ class CommandRunner(object):
     if type(command) == type(()):
       func = command[0]
       args = command[1:]
-      s = '%s(%s)' % (func.__name__, ', '.join(map(repr, args)))
+      s = '{0!s}({1!s})'.format(func.__name__, ', '.join(map(repr, args)))
     if type(command) == type([]):
       # TODO:  quote arguments containing spaces
       # TODO:  handle meta characters?
@@ -207,7 +207,7 @@ def main(argv=None):
 
   os.environ['PYTHONPATH'] = os.path.abspath('test/lib')
   if not opts.quiet:
-    sys.stdout.write('PYTHONPATH=%s\n' % os.environ['PYTHONPATH'])
+    sys.stdout.write('PYTHONPATH={0!s}\n'.format(os.environ['PYTHONPATH']))
 
   passed = []
   failed = []
@@ -232,13 +232,13 @@ def main(argv=None):
   for format in format_list:
     os.environ['TESTGYP_FORMAT'] = format
     if not opts.quiet:
-      sys.stdout.write('TESTGYP_FORMAT=%s\n' % format)
+      sys.stdout.write('TESTGYP_FORMAT={0!s}\n'.format(format))
 
     gyp_options = []
     for option in opts.gyp_option:
       gyp_options += ['-G', option]
     if gyp_options and not opts.quiet:
-      sys.stdout.write('Extra Gyp options: %s\n' % gyp_options)
+      sys.stdout.write('Extra Gyp options: {0!s}\n'.format(gyp_options))
 
     for test in tests:
       status = cr.run([sys.executable, test] + gyp_options,
@@ -255,7 +255,7 @@ def main(argv=None):
     def report(description, tests):
       if tests:
         if len(tests) == 1:
-          sys.stdout.write("\n%s the following test:\n" % description)
+          sys.stdout.write("\n{0!s} the following test:\n".format(description))
         else:
           fmt = "\n%s the following %d tests:\n"
           sys.stdout.write(fmt % (description, len(tests)))

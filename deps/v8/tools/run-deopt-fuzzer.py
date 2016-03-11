@@ -86,7 +86,7 @@ DISTRIBUTION_MODES = ["smooth", "random"]
 class RandomDistribution:
   def __init__(self, seed=None):
     seed = seed or random.randint(1, sys.maxint)
-    print "Using random distribution with seed %d" % seed
+    print "Using random distribution with seed {0:d}".format(seed)
     self._random = random.Random(seed)
 
   def Distribute(self, n, m):
@@ -234,14 +234,14 @@ def ProcessOptions(options):
   options.mode = options.mode.split(",")
   for mode in options.mode:
     if not mode.lower() in ["debug", "release"]:
-      print "Unknown mode %s" % mode
+      print "Unknown mode {0!s}".format(mode)
       return False
   if options.arch in ["auto", "native"]:
     options.arch = ARCH_GUESS
   options.arch = options.arch.split(",")
   for arch in options.arch:
     if not arch in SUPPORTED_ARCHS:
-      print "Unknown architecture %s" % arch
+      print "Unknown architecture {0!s}".format(arch)
       return False
 
   # Special processing of other options, sorted alphabetically.
@@ -252,23 +252,19 @@ def ProcessOptions(options):
   while options.random_seed == 0:
     options.random_seed = random.SystemRandom().randint(-2147483648, 2147483647)
   if not options.distribution_mode in DISTRIBUTION_MODES:
-    print "Unknown distribution mode %s" % options.distribution_mode
+    print "Unknown distribution mode {0!s}".format(options.distribution_mode)
     return False
   if options.distribution_factor1 < 0.0:
-    print ("Distribution factor1 %s is out of range. Defaulting to 0.0"
-        % options.distribution_factor1)
+    print ("Distribution factor1 {0!s} is out of range. Defaulting to 0.0".format(options.distribution_factor1))
     options.distribution_factor1 = 0.0
   if options.distribution_factor2 < 0.0:
-    print ("Distribution factor2 %s is out of range. Defaulting to 0.0"
-        % options.distribution_factor2)
+    print ("Distribution factor2 {0!s} is out of range. Defaulting to 0.0".format(options.distribution_factor2))
     options.distribution_factor2 = 0.0
   if options.coverage < 0.0 or options.coverage > 1.0:
-    print ("Coverage %s is out of range. Defaulting to 0.4"
-        % options.coverage)
+    print ("Coverage {0!s} is out of range. Defaulting to 0.4".format(options.coverage))
     options.coverage = 0.4
   if options.coverage_lift < 0:
-    print ("Coverage lift %s is out of range. Defaulting to 0"
-        % options.coverage_lift)
+    print ("Coverage lift {0!s} is out of range. Defaulting to 0".format(options.coverage_lift))
     options.coverage_lift = 0
   return True
 
@@ -344,7 +340,7 @@ def CalculateNTests(m, options):
 
 
 def Execute(arch, mode, args, options, suites, workspace):
-  print(">>> Running tests for %s.%s" % (arch, mode))
+  print(">>> Running tests for {0!s}.{1!s}".format(arch, mode))
 
   dist = Distribution(options)
 
@@ -355,7 +351,7 @@ def Execute(arch, mode, args, options, suites, workspace):
       mode = mode.lower()
     else:
       shell_dir = os.path.join(workspace, options.outdir,
-                               "%s.%s" % (arch, mode))
+                               "{0!s}.{1!s}".format(arch, mode))
   shell_dir = os.path.relpath(shell_dir)
 
   # Populate context object.
@@ -416,7 +412,7 @@ def Execute(arch, mode, args, options, suites, workspace):
     all_tests += s.tests
     s.FilterTestCasesByStatus(False)
     test_backup[s] = s.tests
-    analysis_flags = ["--deopt-every-n-times", "%d" % MAX_DEOPT,
+    analysis_flags = ["--deopt-every-n-times", "{0:d}".format(MAX_DEOPT),
                       "--print-deopt-stress"]
     s.tests = [ t.CopyAddingFlags(t.variant, analysis_flags) for t in s.tests ]
     num_tests += len(s.tests)
@@ -445,10 +441,10 @@ def Execute(arch, mode, args, options, suites, workspace):
           test_results[t.path] = MAX_DEOPT - int(line.split(" ")[-1])
     for t in s.tests:
       if t.path not in test_results:
-        print "Missing results for %s" % t.path
+        print "Missing results for {0!s}".format(t.path)
     if options.dump_results_file:
       results_dict = dict((t.path, n) for (t, n) in test_results.iteritems())
-      with file("%s.%d.txt" % (dump_results_file, time.time()), "w") as f:
+      with file("{0!s}.{1:d}.txt".format(dump_results_file, time.time()), "w") as f:
         f.write(json.dumps(results_dict))
 
     # Reset tests and redistribute the prototypes from the collection phase.
@@ -462,9 +458,9 @@ def Execute(arch, mode, args, options, suites, workspace):
       n_deopt = CalculateNTests(max_deopt, options)
       distribution = dist.Distribute(n_deopt, max_deopt)
       if options.verbose:
-        print "%s %s" % (t.path, distribution)
+        print "{0!s} {1!s}".format(t.path, distribution)
       for i in distribution:
-        fuzzing_flags = ["--deopt-every-n-times", "%d" % i]
+        fuzzing_flags = ["--deopt-every-n-times", "{0:d}".format(i)]
         s.tests.append(t.CopyAddingFlags(t.variant, fuzzing_flags))
     num_tests += len(s.tests)
     for t in s.tests:
@@ -475,7 +471,7 @@ def Execute(arch, mode, args, options, suites, workspace):
     print "No tests to run."
     return 0
 
-  print(">>> Deopt fuzzing phase (%d test cases)" % num_tests)
+  print(">>> Deopt fuzzing phase ({0:d} test cases)".format(num_tests))
   progress_indicator = progress.PROGRESS_INDICATORS[options.progress]()
   runner = execution.Runner(suites, progress_indicator, ctx)
 

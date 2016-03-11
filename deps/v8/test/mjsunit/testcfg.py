@@ -79,7 +79,7 @@ class MjsunitTestSuite(testsuite.TestSuite):
               for f in files_list ]
     testfilename = os.path.join(self.root, testcase.path + self.suffix())
     if SELF_SCRIPT_PATTERN.search(source):
-      env = ["-e", "TEST_FILE_NAME=\"%s\"" % testfilename.replace("\\", "\\\\")]
+      env = ["-e", "TEST_FILE_NAME=\"{0!s}\"".format(testfilename.replace("\\", "\\\\"))]
       files = env + files
 
     if not context.no_harness and not NO_HARNESS_PATTERN.search(source):

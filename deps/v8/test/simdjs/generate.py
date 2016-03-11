@@ -39,14 +39,14 @@ output = {
     'test/simdjs/data/src/benchmarks/base.js',
     'test/simdjs/harness-adapt.js',
     'test/simdjs/harness-finish.js'
-  ] + ['test/simdjs/data/src/benchmarks/%s.js' % t for t in tests],
+  ] + ['test/simdjs/data/src/benchmarks/{0!s}.js'.format(t) for t in tests],
   'flags': ['test/simdjs/harness-adapt.js'],
   'path': ['../../'],
   'tests': [
     {
       'name': test,
       'main': 'test/simdjs/harness-finish.js',
-      'flags': ['test/simdjs/data/src/benchmarks/%s.js' % test],
+      'flags': ['test/simdjs/data/src/benchmarks/{0!s}.js'.format(test)],
       'results_regexp': '%s\\([ ]*([0-9.]+)(ms)?\\)',
       'tests': [
         {'name': 'SIMD'},

@@ -102,7 +102,7 @@ def BuildRevisionRanges(cr_releases):
     # Assume the chromium revisions are all different.
     assert cr_from[0] != cr_to[0]
 
-    ran = "%s:%d" % (cr_from[0], int(cr_to[0]) - 1)
+    ran = "{0!s}:{1:d}".format(cr_from[0], int(cr_to[0]) - 1)
 
     # Collect the ranges in lists per revision.
     range_lists.setdefault(cr_from[1], []).append(ran)
@@ -146,7 +146,7 @@ class RetrieveV8Releases(Step):
       patches = MatchSafe(ROLLBACK_MESSAGE_RE.search(body))
       if patches:
         # Indicate reverted patches with a "-".
-        patches = "-%s" % patches
+        patches = "-{0!s}".format(patches)
     return patches
 
   def GetMergedPatchesGit(self, body):
@@ -157,7 +157,7 @@ class RetrieveV8Releases(Step):
         patches.append(patch)
       patch = MatchSafe(ROLLBACK_MESSAGE_GIT_RE.match(line))
       if patch:
-        patches.append("-%s" % patch)
+        patches.append("-{0!s}".format(patch))
     return ", ".join(patches)
 
 
@@ -190,8 +190,7 @@ class RetrieveV8Releases(Step):
       # so this field will be populated below with the recent roll CL link.
       "review_link": MatchSafe(REVIEW_LINK_RE.search(cl_body)),
       # Link to the commit message on google code.
-      "revision_link": ("https://code.google.com/p/v8/source/detail?r=%s"
-                        % revision),
+      "revision_link": ("https://code.google.com/p/v8/source/detail?r={0!s}".format(revision)),
     }
 
   def GetRelease(self, git_hash, branch):
@@ -202,7 +201,7 @@ class RetrieveV8Releases(Step):
 
     patches = ""
     if self["patch"] != "0":
-      version += ".%s" % self["patch"]
+      version += ".{0!s}".format(self["patch"])
       if CHERRY_PICK_TITLE_GIT_RE.match(body.splitlines()[0]):
         patches = self.GetMergedPatchesGit(body)
       else:
@@ -260,12 +259,12 @@ class RetrieveV8Releases(Step):
     try:
       if (VERSION_FILE not in self.GitChangedFiles(revision) or
           not self.GitCheckoutFileSafe(VERSION_FILE, revision)):
-        print "Skipping revision %s" % revision
+        print "Skipping revision {0!s}".format(revision)
         return []  # pragma: no cover
 
       branches = map(
           str.strip,
-          self.Git("branch -r --contains %s" % revision).strip().splitlines(),
+          self.Git("branch -r --contains {0!s}".format(revision)).strip().splitlines(),
       )
       branch = ""
       for b in branches:
@@ -276,7 +275,7 @@ class RetrieveV8Releases(Step):
           branch = b.split("branch-heads/")[1]
           break
       else:
-        print "Could not determine branch for %s" % revision
+        print "Could not determine branch for {0!s}".format(revision)
 
       release, _ = self.GetRelease(revision, branch)
       releases.append(release)
@@ -406,7 +405,7 @@ class RetrieveChromiumBranches(Step):
     try:
       for branch in branches:
         deps = self.GitShowFile(
-            "refs/branch-heads/%d" % branch, "DEPS", cwd=cwd)
+            "refs/branch-heads/{0:d}".format(branch), "DEPS", cwd=cwd)
         match = DEPS_RE.search(deps)
         if match:
           v8_hsh = match.group(1)

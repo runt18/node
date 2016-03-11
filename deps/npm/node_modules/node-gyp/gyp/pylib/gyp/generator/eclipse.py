@@ -256,10 +256,10 @@ def WriteIncludePaths(out, eclipse_langs, include_dirs):
             'settingswizards.IncludePaths">\n')
   out.write('    <language name="holder for library settings"></language>\n')
   for lang in eclipse_langs:
-    out.write('    <language name="%s">\n' % lang)
+    out.write('    <language name="{0!s}">\n'.format(lang))
     for include_dir in include_dirs:
-      out.write('      <includepath workspace_path="false">%s</includepath>\n' %
-                include_dir)
+      out.write('      <includepath workspace_path="false">{0!s}</includepath>\n'.format(
+                include_dir))
     out.write('    </language>\n')
   out.write('  </section>\n')
 
@@ -271,10 +271,9 @@ def WriteMacros(out, eclipse_langs, defines):
             'settingswizards.Macros">\n')
   out.write('    <language name="holder for library settings"></language>\n')
   for lang in eclipse_langs:
-    out.write('    <language name="%s">\n' % lang)
+    out.write('    <language name="{0!s}">\n'.format(lang))
     for key in sorted(defines.iterkeys()):
-      out.write('      <macro><name>%s</name><value>%s</value></macro>\n' %
-                (escape(key), escape(defines[key])))
+      out.write('      <macro><name>{0!s}</name><value>{1!s}</value></macro>\n'.format(escape(key), escape(defines[key])))
     out.write('    </language>\n')
   out.write('  </section>\n')
 

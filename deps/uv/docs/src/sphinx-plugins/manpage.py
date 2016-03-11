@@ -18,12 +18,12 @@ from string import Template
 def make_link_node(rawtext, app, name, manpage_num, options):
     ref = app.config.man_url_regex
     if not ref:
-        ref = "http://linux.die.net/man/%s/%s" % (manpage_num, name)
+        ref = "http://linux.die.net/man/{0!s}/{1!s}".format(manpage_num, name)
     else:
         s = Template(ref)
         ref = s.substitute(num=manpage_num, topic=name)
     set_classes(options)
-    node = nodes.reference(rawtext, "%s(%s)" % (name, manpage_num), refuri=ref, **options)
+    node = nodes.reference(rawtext, "{0!s}({1!s})".format(name, manpage_num), refuri=ref, **options)
     return node
 
 

@@ -218,8 +218,7 @@ class MsvsSettings(object):
     for field in unsupported_fields:
       for config in configs.values():
         if field in config:
-          unsupported += ["%s not supported (target %s)." %
-                          (field, spec['target_name'])]
+          unsupported += ["{0!s} not supported (target {1!s}).".format(field, spec['target_name'])]
     if unsupported:
       raise Exception('\n'.join(unsupported))
 
@@ -540,7 +539,7 @@ class MsvsSettings(object):
     linker in the VS generator. Emulate that behaviour here."""
     def_file = self.GetDefFile(gyp_to_build_path)
     if def_file:
-      ldflags.append('/DEF:"%s"' % def_file)
+      ldflags.append('/DEF:"{0!s}"'.format(def_file))
 
   def GetPGDName(self, config, expand_special):
     """Gets the explicitly overridden pgd name for a target or returns None
@@ -590,8 +589,8 @@ class MsvsSettings(object):
     if minimum_required_version:
       minimum_required_version = ',' + minimum_required_version
     ld('SubSystem',
-       map={'1': 'CONSOLE%s' % minimum_required_version,
-            '2': 'WINDOWS%s' % minimum_required_version},
+       map={'1': 'CONSOLE{0!s}'.format(minimum_required_version),
+            '2': 'WINDOWS{0!s}'.format(minimum_required_version)},
        prefix='/SUBSYSTEM:')
 
     stack_reserve_size = self._Setting(
@@ -601,7 +600,7 @@ class MsvsSettings(object):
           ('VCLinkerTool', 'StackCommitSize'), config, default='')
       if stack_commit_size:
         stack_commit_size = ',' + stack_commit_size
-      ldflags.append('/STACK:%s%s' % (stack_reserve_size, stack_commit_size))
+      ldflags.append('/STACK:{0!s}{1!s}'.format(stack_reserve_size, stack_commit_size))
 
     ld('TerminalServerAware', map={'1': ':NO', '2': ''}, prefix='/TSAWARE')
     ld('LinkIncremental', map={'1': ':NO', '2': ''}, prefix='/INCREMENTAL')
@@ -715,10 +714,10 @@ class MsvsSettings(object):
 <trustInfo xmlns="urn:schemas-microsoft-com:asm.v3">
   <security>
     <requestedPrivileges>
-      <requestedExecutionLevel level='%s' uiAccess='%s' />
+      <requestedExecutionLevel level='{0!s}' uiAccess='{1!s}' />
     </requestedPrivileges>
   </security>
-</trustInfo>''' % (execution_level_map[execution_level], ui_access)
+</trustInfo>'''.format(execution_level_map[execution_level], ui_access)
     else:
       inner = ''
 
@@ -799,13 +798,13 @@ class MsvsSettings(object):
     are in posix style, if the command line will be used here."""
     cygwin_dir = os.path.normpath(
         os.path.join(path_to_base, self.msvs_cygwin_dirs[0]))
-    cd = ('cd %s' % path_to_base).replace('\\', '/')
+    cd = ('cd {0!s}'.format(path_to_base)).replace('\\', '/')
     args = [a.replace('\\', '/').replace('"', '\\"') for a in args]
-    args = ["'%s'" % a.replace("'", "'\\''") for a in args]
+    args = ["'{0!s}'".format(a.replace("'", "'\\''")) for a in args]
     bash_cmd = ' '.join(args)
     cmd = (
-        'call "%s\\setup_env.bat" && set CYGWIN=nontsec && ' % cygwin_dir +
-        'bash -c "%s ; %s"' % (cd, bash_cmd))
+        'call "{0!s}\\setup_env.bat" && set CYGWIN=nontsec && '.format(cygwin_dir) +
+        'bash -c "{0!s} ; {1!s}"'.format(cd, bash_cmd))
     return cmd
 
   def IsRuleRunUnderCygwin(self, rule):
@@ -1065,7 +1064,7 @@ def VerifyMissingSources(sources, build_dir, generator_flags, gyp_to_ninja):
       # They'll look like out\Release\..\..\stuff\things.cc, so normalize the
       # path for a slightly less crazy looking output.
       cleaned_up = [os.path.normpath(x) for x in missing]
-      raise Exception('Missing input files:\n%s' % '\n'.join(cleaned_up))
+      raise Exception('Missing input files:\n{0!s}'.format('\n'.join(cleaned_up)))
 
 # Sets some values in default_variables, which are required for many
 # generators, run on Windows.

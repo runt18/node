@@ -66,8 +66,8 @@ class GetOldestUntaggedVersion(Step):
           # newer revision without a tag.
           break
         else:
-          print("Stop as %s is the latest version and it has been tagged." %
-                version)
+          print("Stop as {0!s} is the latest version and it has been tagged.".format(
+                version))
           self.CommonCleanup()
           return True
       else:
@@ -84,8 +84,7 @@ class GetOldestUntaggedVersion(Step):
       self.CommonCleanup()
       return True
 
-    print("Candidate for tagging is %s with version %s" %
-          (self["candidate"], self["candidate_version"]))
+    print("Candidate for tagging is {0!s} with version {1!s}".format(self["candidate"], self["candidate_version"]))
 
 
 class GetLKGRs(Step):
@@ -131,7 +130,7 @@ class CalculateTagRevision(Step):
     # Let's check if the lkgr is at least three hours old.
     self["lkgr"] = self.vc.SvnGit(lkgr_svn)
     if not self["lkgr"]:
-      print "Couldn't find git hash for lkgr %s" % lkgr_svn
+      print "Couldn't find git hash for lkgr {0!s}".format(lkgr_svn)
       self.CommonCleanup()
       return True
 
@@ -139,11 +138,11 @@ class CalculateTagRevision(Step):
     current_utc_time = self._side_effect_handler.GetUTCStamp()
 
     if current_utc_time < lkgr_utc_time + 10800:
-      print "Candidate lkgr %s is too recent for tagging." % lkgr_svn
+      print "Candidate lkgr {0!s} is too recent for tagging.".format(lkgr_svn)
       self.CommonCleanup()
       return True
 
-    print "Tagging revision %s with %s" % (lkgr_svn, self["candidate_version"])
+    print "Tagging revision {0!s} with {1!s}".format(lkgr_svn, self["candidate_version"])
 
 
 class MakeTag(Step):

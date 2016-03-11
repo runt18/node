@@ -66,9 +66,9 @@ def out_define():
     wrapped_val = curr_val & 0xffffffff;
     if curr_val & 0x80000000 != 0:
       wrapped_val = 0x100000000 - wrapped_val;
-      outfile.write("#define %s -0x%x\n" % (curr_sym.upper(), wrapped_val));
+      outfile.write("#define {0!s} -0x{1:x}\n".format(curr_sym.upper(), wrapped_val));
     else:
-      outfile.write("#define %s 0x%x\n" % (curr_sym.upper(), wrapped_val));
+      outfile.write("#define {0!s} 0x{1:x}\n".format(curr_sym.upper(), wrapped_val));
   out_reset();
 
 for line in pipe:
@@ -90,7 +90,7 @@ for line in pipe:
       if curr_octet > octets:
         break;
 
-      curr_val += int('0x%s' % octetstr, 16) << (curr_octet * 8);
+      curr_val += int('0x{0!s}'.format(octetstr), 16) << (curr_octet * 8);
       curr_octet += 1;
 
   match = pattern.match(line)

@@ -333,7 +333,7 @@ def JS2C(source, target):
 
   i = 0
   for (id, length) in delay_ids:
-    native_name = "native %s.js" % id
+    native_name = "native {0!s}.js".format(id)
     get_index_cases.append(GET_DELAY_INDEX_CASE % { 'id': id, 'i': i })
     get_script_source_cases.append(GET_DELAY_SCRIPT_SOURCE_CASE % {
       'id': id,
@@ -348,7 +348,7 @@ def JS2C(source, target):
     i = i + 1
 
   for (id, length) in ids:
-    native_name = "native %s.js" % id
+    native_name = "native {0!s}.js".format(id)
     get_index_cases.append(GET_DELAY_INDEX_CASE % { 'id': id, 'i': i })
     get_script_source_cases.append(GET_DELAY_SCRIPT_SOURCE_CASE % {
       'id': id,

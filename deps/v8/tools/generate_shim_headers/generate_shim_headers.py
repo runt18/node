@@ -88,30 +88,30 @@ def GeneratorMain(argv):
               key, value = define.split('=', 1)
               # This non-standard push_macro extension is supported
               # by compilers we support (GCC, clang).
-              f.write('#pragma push_macro("%s")\n' % key)
-              f.write('#undef %s\n' % key)
-              f.write('#define %s %s\n' % (key, value))
+              f.write('#pragma push_macro("{0!s}")\n'.format(key))
+              f.write('#undef {0!s}\n'.format(key))
+              f.write('#define {0!s} {1!s}\n'.format(key, value))
 
           if include_before:
             for header in include_before.split(':'):
-              f.write('#include %s\n' % header)
+              f.write('#include {0!s}\n'.format(header))
 
           include_target = options.prefix + header_filename
           if options.use_include_next:
-            f.write('#include_next <%s>\n' % include_target)
+            f.write('#include_next <{0!s}>\n'.format(include_target))
           else:
-            f.write('#include <%s>\n' % include_target)
+            f.write('#include <{0!s}>\n'.format(include_target))
 
           if include_after:
             for header in include_after.split(':'):
-              f.write('#include %s\n' % header)
+              f.write('#include {0!s}\n'.format(header))
 
           if options.define:
             for define in options.define:
               key, value = define.split('=', 1)
               # This non-standard pop_macro extension is supported
               # by compilers we support (GCC, clang).
-              f.write('#pragma pop_macro("%s")\n' % key)
+              f.write('#pragma pop_macro("{0!s}")\n'.format(key))
 
 
 def DoMain(argv):

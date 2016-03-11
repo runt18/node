@@ -21,7 +21,7 @@ class Preparation(Step):
       "+refs/pending/*:refs/pending/*",
       "+refs/pending-tags/*:refs/pending-tags/*",
     ]
-    self.Git("fetch origin %s" % " ".join(fetchspecs))
+    self.Git("fetch origin {0!s}".format(" ".join(fetchspecs)))
     self.GitCheckout("origin/master")
     self.DeleteBranch("work-branch")
 
@@ -33,7 +33,7 @@ class PrepareBranchRevision(Step):
     self["push_hash"] = (self._options.revision or
                          self.GitLog(n=1, format="%H", branch="origin/master"))
     assert self["push_hash"]
-    print "Release revision %s" % self["push_hash"]
+    print "Release revision {0!s}".format(self["push_hash"])
 
 
 class IncrementVersion(Step):
@@ -66,11 +66,11 @@ class IncrementVersion(Step):
     # The new version is not a candidate.
     self["new_candidate"] = "0"
 
-    self["version"] = "%s.%s.%s" % (self["new_major"],
+    self["version"] = "{0!s}.{1!s}.{2!s}".format(self["new_major"],
                                     self["new_minor"],
                                     self["new_build"])
 
-    print ("Incremented version to %s" % self["version"])
+    print ("Incremented version to {0!s}".format(self["version"]))
 
 
 class DetectLastRelease(Step):
@@ -91,8 +91,7 @@ class PrepareChangeLog(Step):
     match = re.search(r"^Review URL: https://codereview\.chromium\.org/(\d+)$",
                       body, flags=re.M)
     if match:
-      cl_url = ("https://codereview.chromium.org/%s/description"
-                % match.group(1))
+      cl_url = ("https://codereview.chromium.org/{0!s}/description".format(match.group(1)))
       try:
         # Fetch from Rietveld but only retry once with one second delay since
         # there might be many revisions.
@@ -103,10 +102,10 @@ class PrepareChangeLog(Step):
 
   def RunStep(self):
     self["date"] = self.GetDate()
-    output = "%s: Version %s\n\n" % (self["date"], self["version"])
+    output = "{0!s}: Version {1!s}\n\n".format(self["date"], self["version"])
     TextToFile(output, self.Config("CHANGELOG_ENTRY_FILE"))
     commits = self.GitLog(format="%H",
-        git_hash="%s..%s" % (self["last_push_master"],
+        git_hash="{0!s}..{1!s}".format(self["last_push_master"],
                              self["push_hash"]))
 
     # Cache raw commit messages.
@@ -161,7 +160,7 @@ class MakeBranch(Step):
 
   def RunStep(self):
     self.Git("reset --hard origin/master")
-    self.Git("checkout -b work-branch %s" % self["push_hash"])
+    self.Git("checkout -b work-branch {0!s}".format(self["push_hash"]))
     self.GitCheckoutFile(CHANGELOG_FILE, self["latest_version"])
     self.GitCheckoutFile(VERSION_FILE, self["latest_version"])
 
@@ -172,7 +171,7 @@ class AddChangeLog(Step):
   def RunStep(self):
     changelog_entry = FileToText(self.Config("CHANGELOG_ENTRY_FILE"))
     old_change_log = FileToText(os.path.join(self.default_cwd, CHANGELOG_FILE))
-    new_change_log = "%s\n\n\n%s" % (changelog_entry, old_change_log)
+    new_change_log = "{0!s}\n\n\n{1!s}".format(changelog_entry, old_change_log)
     TextToFile(new_change_log, os.path.join(self.default_cwd, CHANGELOG_FILE))
 
 
@@ -191,7 +190,7 @@ class CommitBranch(Step):
     text = FileToText(self.Config("CHANGELOG_ENTRY_FILE"))
 
     # Remove date and trailing white space.
-    text = re.sub(r"^%s: " % self["date"], "", text.rstrip())
+    text = re.sub(r"^{0!s}: ".format(self["date"]), "", text.rstrip())
 
     # Remove indentation and merge paragraphs into single long lines, keeping
     # empty lines between them.
@@ -215,13 +214,13 @@ class PushBranch(Step):
 
   def RunStep(self):
     pushspecs = [
-      "refs/heads/work-branch:refs/pending/heads/%s" % self["version"],
-      "%s:refs/pending-tags/heads/%s" % (self["push_hash"], self["version"]),
-      "%s:refs/heads/%s" % (self["push_hash"], self["version"]),
+      "refs/heads/work-branch:refs/pending/heads/{0!s}".format(self["version"]),
+      "{0!s}:refs/pending-tags/heads/{1!s}".format(self["push_hash"], self["version"]),
+      "{0!s}:refs/heads/{1!s}".format(self["push_hash"], self["version"]),
     ]
-    cmd = "push origin %s" % " ".join(pushspecs)
+    cmd = "push origin {0!s}".format(" ".join(pushspecs))
     if self._options.dry_run:
-      print "Dry run. Command:\ngit %s" % cmd
+      print "Dry run. Command:\ngit {0!s}".format(cmd)
     else:
       self.Git(cmd)
 
@@ -231,11 +230,10 @@ class TagRevision(Step):
 
   def RunStep(self):
     if self._options.dry_run:
-      print ("Dry run. Tagging \"%s\" with %s" %
-             (self["commit_title"], self["version"]))
+      print ("Dry run. Tagging \"{0!s}\" with {1!s}".format(self["commit_title"], self["version"]))
     else:
       self.vc.Tag(self["version"],
-                  "origin/%s" % self["version"],
+                  "origin/{0!s}".format(self["version"]),
                   self["commit_title"])
 
 
@@ -243,8 +241,7 @@ class CleanUp(Step):
   MESSAGE = "Done!"
 
   def RunStep(self):
-    print("Congratulations, you have successfully created version %s."
-          % self["version"])
+    print("Congratulations, you have successfully created version {0!s}.".format(self["version"]))
 
     self.GitCheckout("origin/master")
     self.DeleteBranch("work-branch")

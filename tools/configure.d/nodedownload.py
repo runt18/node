@@ -21,7 +21,7 @@ def spin(c):
 class ConfigOpener(urllib.FancyURLopener):
     """fancy opener used by retrievefile. Set a UA"""
     # append to existing version (UA)
-    version = '%s node.js/configure' % urllib.URLopener.version
+    version = '{0!s} node.js/configure'.format(urllib.URLopener.version)
 
 def reporthook(count, size, total):
     """internal hook used by retrievefile"""
@@ -33,13 +33,13 @@ def reporthook(count, size, total):
 def retrievefile(url, targetfile):
     """fetch file 'url' as 'targetfile'. Return targetfile or throw."""
     try:
-        sys.stdout.write(' <%s>\nConnecting...\r' % url)
+        sys.stdout.write(' <{0!s}>\nConnecting...\r'.format(url))
         sys.stdout.flush()
         msg = ConfigOpener().retrieve(url, targetfile, reporthook=reporthook)
         print ''  # clear the line
         return targetfile
     except:
-        print ' ** Error occurred while downloading\n <%s>' % url
+        print ' ** Error occurred while downloading\n <{0!s}>'.format(url)
         raise
 
 def md5sum(targetfile):
@@ -56,17 +56,17 @@ def unpack(packedfile, parent_path):
     """Unpacks packedfile into parent_path. Assumes .zip. Returns parent_path"""
     if zipfile.is_zipfile(packedfile):
         with contextlib.closing(zipfile.ZipFile(packedfile, 'r')) as icuzip:
-            print ' Extracting zipfile: %s' % packedfile
+            print ' Extracting zipfile: {0!s}'.format(packedfile)
             icuzip.extractall(parent_path)
             return parent_path
     elif tarfile.is_tarfile(packedfile):
         with tarfile.TarFile.open(packedfile, 'r') as icuzip:
-            print ' Extracting tarfile: %s' % packedfile
+            print ' Extracting tarfile: {0!s}'.format(packedfile)
             icuzip.extractall(parent_path)
             return parent_path
     else:
         packedsuffix = packedfile.lower().split('.')[-1]  # .zip, .tgz etc
-        raise Exception('Error: Don\'t know how to unpack %s with extension %s' % (packedfile, packedsuffix))
+        raise Exception('Error: Don\'t know how to unpack {0!s} with extension {1!s}'.format(packedfile, packedsuffix))
 
 # List of possible "--download=" types.
 download_types = set(['icu'])
@@ -77,7 +77,7 @@ download_default = "none"
 def help():
   """This function calculates the '--help' text for '--download'."""
   return """Select which packages may be auto-downloaded.
-valid values are: none, all, %s. (default is "%s").""" % (", ".join(download_types), download_default)
+valid values are: none, all, {0!s}. (default is "{1!s}").""".format(", ".join(download_types), download_default)
 
 def set2dict(keys, value=None):
   """Convert some keys (iterable) to a dict."""
@@ -112,16 +112,16 @@ def parse(opt):
         theRet[anOpt] = True
       else:
         # future proof: ignore unknown types
-        print 'Warning: ignoring unknown --download= type "%s"' % anOpt
+        print 'Warning: ignoring unknown --download= type "{0!s}"'.format(anOpt)
   # all done
   return theRet
 
 def candownload(auto_downloads, package):
   if not (package in auto_downloads.keys()):
-    raise Exception('Internal error: "%s" is not in the --downloads list. Check nodedownload.py' % package)
+    raise Exception('Internal error: "{0!s}" is not in the --downloads list. Check nodedownload.py'.format(package))
   if auto_downloads[package]:
     return True
   else:
-    print """Warning: Not downloading package "%s". You could pass "--download=all"
-    (Windows: "download-all") to try auto-downloading it.""" % package
+    print """Warning: Not downloading package "{0!s}". You could pass "--download=all"
+    (Windows: "download-all") to try auto-downloading it.""".format(package)
     return False

@@ -21,7 +21,7 @@ def deepcopy(x):
     return _deepcopy_dispatch[type(x)](x)
   except KeyError:
     raise Error('Unsupported type %s for deepcopy. Use copy.deepcopy ' +
-                'or expand simple_copy support.' % type(x))
+                'or expand simple_copy support.'.format(*type(x)))
 
 _deepcopy_dispatch = d = {}
 

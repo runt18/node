@@ -50,7 +50,7 @@ def Worker(fn, work_queue, done_queue, done):
       try:
         done_queue.put(NormalResult(fn(*args)))
       except Exception, e:
-        print(">>> EXCEPTION: %s" % e)
+        print(">>> EXCEPTION: {0!s}".format(e))
         done_queue.put(ExceptionResult())
   except KeyboardInterrupt:
     done_queue.put(BreakResult())

@@ -72,8 +72,7 @@ class DetectLastRoll(Step):
         self["roll"] = revision
         break
     else:
-      print("There is no newer v8 revision than the one in Chromium (%s)."
-            % self["last_roll"])
+      print("There is no newer v8 revision than the one in Chromium ({0!s}).".format(self["last_roll"]))
       return True
 
 

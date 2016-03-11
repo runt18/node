@@ -107,7 +107,7 @@ class MessageTestSuite(testsuite.TestSuite):
         expected_lines, actual_lines, fillvalue=''):
       pattern = re.escape(expected.rstrip() % env)
       pattern = pattern.replace("\\*", ".*")
-      pattern = "^%s$" % pattern
+      pattern = "^{0!s}$".format(pattern)
       if not re.match(pattern, actual):
         return True
     return False

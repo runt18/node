@@ -68,13 +68,13 @@ def CountMatchingFiles(commit, files):
 def FindFirstMatchingCommit(start, files, limit, verbose):
   commit = GetGitCommitHash(start)
   num_files = len(files)
-  if verbose: print(">>> Found %d files modified by patch." % num_files)
+  if verbose: print(">>> Found {0:d} files modified by patch.".format(num_files))
   for _ in range(limit):
     matched_files = CountMatchingFiles(commit, files)
-    if verbose: print("Commit %s matched %d files" % (commit, matched_files))
+    if verbose: print("Commit {0!s} matched {1:d} files".format(commit, matched_files))
     if matched_files == num_files:
       return commit
-    commit = GetGitCommitHash("%s^" % commit)
+    commit = GetGitCommitHash("{0!s}^".format(commit))
   print("Sorry, no matching commit found. "
         "Try running 'git fetch', specifying the correct --branch, "
         "and/or setting a higher --limit.")
@@ -86,7 +86,7 @@ if __name__ == "__main__":
   files = FindFilesInPatch(args.patch_file)
   commit = FindFirstMatchingCommit(args.branch, files, args.limit, args.verbose)
   if args.verbose:
-    print(">>> Matching commit: %s" % commit)
+    print(">>> Matching commit: {0!s}".format(commit))
     print(subprocess.check_output(["git", "log", "-1", commit]))
     print(">>> Kthxbai.")
   else:

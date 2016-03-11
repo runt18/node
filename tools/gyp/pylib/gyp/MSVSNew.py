@@ -241,7 +241,7 @@ class MSVSSolution(object):
     f = writer(self.path)
     f.write('Microsoft Visual Studio Solution File, '
             'Format Version %s\r\n' % self.version.SolutionVersion())
-    f.write('# %s\r\n' % self.version.Description())
+    f.write('# {0!s}\r\n'.format(self.version.Description()))
 
     # Project entries
     sln_root = os.path.split(self.path)[0]
@@ -250,11 +250,11 @@ class MSVSSolution(object):
       # msbuild does not accept an empty folder_name.
       # use '.' in case relative_path is empty.
       folder_name = relative_path.replace('/', '\\') or '.'
-      f.write('Project("%s") = "%s", "%s", "%s"\r\n' % (
+      f.write('Project("{0!s}") = "{1!s}", "{2!s}", "{3!s}"\r\n'.format(
           e.entry_type_guid,          # Entry type GUID
           e.name,                     # Folder name
           folder_name,                # Folder name (again)
-          e.get_guid(),               # Entry GUID
+          e.get_guid()               # Entry GUID
       ))
 
       # TODO(rspangler): Need a way to configure this stuff
@@ -268,14 +268,14 @@ class MSVSSolution(object):
         if e.items:
           f.write('\tProjectSection(SolutionItems) = preProject\r\n')
           for i in e.items:
-            f.write('\t\t%s = %s\r\n' % (i, i))
+            f.write('\t\t{0!s} = {1!s}\r\n'.format(i, i))
           f.write('\tEndProjectSection\r\n')
 
       if isinstance(e, MSVSProject):
         if e.dependencies:
           f.write('\tProjectSection(ProjectDependencies) = postProject\r\n')
           for d in e.dependencies:
-            f.write('\t\t%s = %s\r\n' % (d.get_guid(), d.get_guid()))
+            f.write('\t\t{0!s} = {1!s}\r\n'.format(d.get_guid(), d.get_guid()))
           f.write('\tEndProjectSection\r\n')
 
       f.write('EndProject\r\n')
@@ -286,7 +286,7 @@ class MSVSSolution(object):
     # Configurations (variants)
     f.write('\tGlobalSection(SolutionConfigurationPlatforms) = preSolution\r\n')
     for v in self.variants:
-      f.write('\t\t%s = %s\r\n' % (v, v))
+      f.write('\t\t{0!s} = {1!s}\r\n'.format(v, v))
     f.write('\tEndGlobalSection\r\n')
 
     # Sort config guids for easier diffing of solution changes.
@@ -304,17 +304,17 @@ class MSVSSolution(object):
         nv = config_guids_overrides[g].get(v, v)
         # Pick which project configuration to build for this solution
         # configuration.
-        f.write('\t\t%s.%s.ActiveCfg = %s\r\n' % (
+        f.write('\t\t{0!s}.{1!s}.ActiveCfg = {2!s}\r\n'.format(
             g,              # Project GUID
             v,              # Solution build configuration
-            nv,             # Project build config for that solution config
+            nv             # Project build config for that solution config
         ))
 
         # Enable project in this solution configuration.
-        f.write('\t\t%s.%s.Build.0 = %s\r\n' % (
+        f.write('\t\t{0!s}.{1!s}.Build.0 = {2!s}\r\n'.format(
             g,              # Project GUID
             v,              # Solution build configuration
-            nv,             # Project build config for that solution config
+            nv             # Project build config for that solution config
         ))
     f.write('\tEndGlobalSection\r\n')
 
@@ -332,7 +332,7 @@ class MSVSSolution(object):
         if not isinstance(e, MSVSFolder):
           continue        # Does not apply to projects, only folders
         for subentry in e.entries:
-          f.write('\t\t%s = %s\r\n' % (subentry.get_guid(), e.get_guid()))
+          f.write('\t\t{0!s} = {1!s}\r\n'.format(subentry.get_guid(), e.get_guid()))
       f.write('\tEndGlobalSection\r\n')
 
     f.write('EndGlobal\r\n')

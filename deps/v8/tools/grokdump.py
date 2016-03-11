@@ -110,7 +110,7 @@ class Descriptor(object):
       _pack_ = 1
 
       def __str__(self):
-        return "{" + ", ".join("%s: %s" % (field, self.__getattribute__(field))
+        return "{" + ", ".join("{0!s}: {1!s}".format(field, self.__getattribute__(field))
                                for field, _ in Raw._fields_) + "}"
     return Raw
 
@@ -146,25 +146,25 @@ def FullDump(reader, heap):
               asc_line += chr(byte)
             else:
               asc_line += "."
-            hex_line += " %02x" % (byte)
+            hex_line += " {0:02x}".format((byte))
           else:
             hex_line += "   "
           if i == 7:
             hex_line += " "
-        print "%s  %s |%s|" % (reader.FormatIntPtr(addr),
+        print "{0!s}  {1!s} |{2!s}|".format(reader.FormatIntPtr(addr),
                                hex_line,
                                asc_line)
         addr += 16
 
     if is_executable is not True and is_ascii is not True:
-      print "%s - %s" % (reader.FormatIntPtr(start),
+      print "{0!s} - {1!s}".format(reader.FormatIntPtr(start),
                          reader.FormatIntPtr(start + size))
       print start + size + 1;
       for i in xrange(0, size, reader.PointerSize()):
         slot = start + i
         maybe_address = reader.ReadUIntPtr(slot)
         heap_object = heap.FindObject(maybe_address)
-        print "%s: %s" % (reader.FormatIntPtr(slot),
+        print "{0!s}: {1!s}".format(reader.FormatIntPtr(slot),
                           reader.FormatIntPtr(maybe_address))
         if heap_object:
           heap_object.Print(Printer())
@@ -798,7 +798,7 @@ class MinidumpReader(object):
         loc = location + i
         if reader._ReadWord(loc) == word:
           slot = start + (loc - location)
-          print "%s: %s" % (reader.FormatIntPtr(slot),
+          print "{0!s}: {1!s}".format(reader.FormatIntPtr(slot),
                             reader.FormatIntPtr(word))
     self.ForEachMemoryRegion(search_inside_region)
 
@@ -895,13 +895,13 @@ class MinidumpReader(object):
 
   def FormatIntPtr(self, value):
     if self.arch == MD_CPU_ARCHITECTURE_AMD64:
-      return "%016x" % value
+      return "{0:016x}".format(value)
     elif self.arch == MD_CPU_ARCHITECTURE_ARM:
-      return "%08x" % value
+      return "{0:08x}".format(value)
     elif self.arch == MD_CPU_ARCHITECTURE_ARM64:
-      return "%016x" % value
+      return "{0:016x}".format(value)
     elif self.arch == MD_CPU_ARCHITECTURE_X86:
-      return "%08x" % value
+      return "{0:08x}".format(value)
 
   def PointerSize(self):
     if self.arch == MD_CPU_ARCHITECTURE_AMD64:
@@ -926,7 +926,7 @@ class MinidumpReader(object):
   #    http://code.google.com/p/google-breakpad/wiki/SymbolFiles
   #
   def _LoadSymbolsFrom(self, symfile, baseaddr):
-    print "Loading symbols from %s" % (symfile)
+    print "Loading symbols from {0!s}".format((symfile))
     funcs = []
     with open(symfile) as f:
       for line in f:
@@ -948,7 +948,7 @@ class MinidumpReader(object):
         self._LoadSymbolsFrom(symfile, module.base_of_image)
         self.modules_with_symbols.append(module)
     except Exception as e:
-      print "  ... failure (%s)" % (e)
+      print "  ... failure ({0!s})".format((e))
 
   # Returns true if address is covered by some module that has loaded symbols.
   def _IsInModuleWithSymbols(self, addr):
@@ -974,7 +974,7 @@ class MinidumpReader(object):
     else:
       return None
     diff = addr - symbol.start
-    return "%s+0x%x" % (symbol.name, diff)
+    return "{0!s}+0x{1:x}".format(symbol.name, diff)
 
 
 class Printer(object):
@@ -990,11 +990,11 @@ class Printer(object):
     self.indent -= 2
 
   def Print(self, string):
-    print "%s%s" % (self._IndentString(), string)
+    print "{0!s}{1!s}".format(self._IndentString(), string)
 
   def PrintLines(self, lines):
     indent = self._IndentString()
-    print "\n".join("%s%s" % (indent, line) for line in lines)
+    print "\n".join("{0!s}{1!s}".format(indent, line) for line in lines)
 
   def _IndentString(self):
     return self.indent * " "
@@ -1020,10 +1020,10 @@ def FormatDisasmLine(start, heap, line):
       if len(words) > 6 and words[5] == "call":
         offset = int(words[4] + words[3] + words[2] + words[1], 16)
         target = (line_address + offset + 5) & 0xFFFFFFFF
-        code = code.replace(words[6], "0x%08x" % target)
+        code = code.replace(words[6], "0x{0:08x}".format(target))
   # TODO(jkummerow): port this hack to ARM and x64.
 
-  return "%s%08x %08x: %s" % (marker, line_address, line[0], code)
+  return "{0!s}{1:08x} {2:08x}: {3!s}".format(marker, line_address, line[0], code)
 
 
 def AnnotateAddresses(heap, line):
@@ -1034,7 +1034,7 @@ def AnnotateAddresses(heap, line):
     if not object: continue
     extra.append(str(object))
   if len(extra) == 0: return line
-  return "%s  ;; %s" % (line, ", ".join(extra))
+  return "{0!s}  ;; {1!s}".format(line, ", ".join(extra))
 
 
 class HeapObject(object):
@@ -1053,7 +1053,7 @@ class HeapObject(object):
     instance_type = "???"
     if self.map is not None:
       instance_type = INSTANCE_TYPES[self.map.instance_type]
-    return "HeapObject(%s, %s)" % (self.heap.reader.FormatIntPtr(self.address),
+    return "HeapObject({0!s}, {1!s})".format(self.heap.reader.FormatIntPtr(self.address),
                                    instance_type)
 
   def ObjectField(self, offset):
@@ -1129,8 +1129,8 @@ class Map(HeapObject):
     return self.heap.reader.ReadU8(self.address + offset)
 
   def Print(self, p):
-    p.Print("Map(%08x)" % (self.address))
-    p.Print("- size: %d, inobject: %d, preallocated: %d, visitor: %d" % (
+    p.Print("Map({0:08x})".format((self.address)))
+    p.Print("- size: {0:d}, inobject: {1:d}, preallocated: {2:d}, visitor: {3:d}".format(
         self.ReadByte(self.InstanceSizeOffset()),
         self.ReadByte(self.InObjectProperties()),
         self.ReadByte(self.PreAllocatedPropertyFields()),
@@ -1138,34 +1138,34 @@ class Map(HeapObject):
 
     bitfield = self.ReadByte(self.BitFieldOffset())
     bitfield2 = self.ReadByte(self.BitField2Offset())
-    p.Print("- %s, unused: %d, bf: %d, bf2: %d" % (
+    p.Print("- {0!s}, unused: {1:d}, bf: {2:d}, bf2: {3:d}".format(
         INSTANCE_TYPES[self.ReadByte(self.InstanceTypeOffset())],
         self.ReadByte(self.UnusedPropertyFieldsOffset()),
         bitfield, bitfield2))
 
-    p.Print("- kind: %s" % (self.Decode(3, 5, bitfield2)))
+    p.Print("- kind: {0!s}".format((self.Decode(3, 5, bitfield2))))
 
     bitfield3 = self.ObjectField(self.BitField3Offset())
     p.Print(
-        "- EnumLength: %d NumberOfOwnDescriptors: %d OwnsDescriptors: %s" % (
+        "- EnumLength: {0:d} NumberOfOwnDescriptors: {1:d} OwnsDescriptors: {2!s}".format(
             self.Decode(0, 11, bitfield3),
             self.Decode(11, 11, bitfield3),
             self.Decode(25, 1, bitfield3)))
-    p.Print("- IsShared: %s" % (self.Decode(22, 1, bitfield3)))
-    p.Print("- FunctionWithPrototype: %s" % (self.Decode(23, 1, bitfield3)))
-    p.Print("- DictionaryMap: %s" % (self.Decode(24, 1, bitfield3)))
+    p.Print("- IsShared: {0!s}".format((self.Decode(22, 1, bitfield3))))
+    p.Print("- FunctionWithPrototype: {0!s}".format((self.Decode(23, 1, bitfield3))))
+    p.Print("- DictionaryMap: {0!s}".format((self.Decode(24, 1, bitfield3))))
 
     descriptors = self.ObjectField(self.DescriptorsOffset())
     if descriptors.__class__ == FixedArray:
       DescriptorArray(descriptors).Print(p)
     else:
-      p.Print("Descriptors: %s" % (descriptors))
+      p.Print("Descriptors: {0!s}".format((descriptors)))
 
     transitions = self.ObjectField(self.TransitionsOrBackPointerOffset())
     if transitions.__class__ == FixedArray:
       TransitionArray(transitions).Print(p)
     else:
-      p.Print("TransitionsOrBackPointer: %s" % (transitions))
+      p.Print("TransitionsOrBackPointer: {0!s}".format((transitions)))
 
   def __init__(self, heap, map, address):
     HeapObject.__init__(self, heap, map, address)
@@ -1189,7 +1189,7 @@ class String(HeapObject):
     p.Print(str(self))
 
   def __str__(self):
-    return "\"%s\"" % self.GetChars()
+    return "\"{0!s}\"".format(self.GetChars())
 
 
 class SeqString(String):
@@ -1285,12 +1285,12 @@ class Oddball(HeapObject):
 
   def __str__(self):
     if self.to_string:
-      return "Oddball(%08x, <%s>)" % (self.address, str(self.to_string))
+      return "Oddball({0:08x}, <{1!s}>)".format(self.address, str(self.to_string))
     else:
       kind = "???"
       if 0 <= self.kind < len(Oddball.KINDS):
         kind = Oddball.KINDS[self.kind]
-      return "Oddball(%08x, kind=%s)" % (self.address, kind)
+      return "Oddball({0:08x}, kind={1!s})".format(self.address, kind)
 
 
 class FixedArray(HeapObject):
@@ -1311,14 +1311,14 @@ class FixedArray(HeapObject):
     self.length = self.SmiField(self.LengthOffset())
 
   def Print(self, p):
-    p.Print("FixedArray(%s) {" % self.heap.reader.FormatIntPtr(self.address))
+    p.Print("FixedArray({0!s}) {{".format(self.heap.reader.FormatIntPtr(self.address)))
     p.Indent()
-    p.Print("length: %d" % self.length)
+    p.Print("length: {0:d}".format(self.length))
     base_offset = self.ElementsOffset()
     for i in xrange(self.length):
       offset = base_offset + 4 * i
       try:
-        p.Print("[%08d] = %s" % (i, self.ObjectField(offset)))
+        p.Print("[{0:08d}] = {1!s}".format(i, self.ObjectField(offset)))
       except TypeError:
         p.Dedent()
         p.Print("...")
@@ -1328,7 +1328,7 @@ class FixedArray(HeapObject):
     p.Print("}")
 
   def __str__(self):
-    return "FixedArray(%08x, length=%d)" % (self.address, self.length)
+    return "FixedArray({0:08x}, length={1:d})".format(self.address, self.length)
 
 
 class DescriptorArray(object):
@@ -1382,20 +1382,20 @@ class DescriptorArray(object):
     length = self.Length()
     array = self.array
 
-    p.Print("Descriptors(%08x, length=%d)" % (array.address, length))
-    p.Print("[et] %s" % (array.Get(1)))
+    p.Print("Descriptors({0:08x}, length={1:d})".format(array.address, length))
+    p.Print("[et] {0!s}".format((array.Get(1))))
 
     for di in xrange(length):
       i = 2 + di * 3
-      p.Print("0x%x" % (array.address + array.MemberOffset(i)))
-      p.Print("[%i] name:    %s" % (di, array.Get(i + 0)))
-      p.Print("[%i] details: %s %s field-index %i pointer %i" % \
-              self.Details(di, array.Get(i + 1)))
-      p.Print("[%i] value:   %s" % (di, array.Get(i + 2)))
+      p.Print("0x{0:x}".format((array.address + array.MemberOffset(i))))
+      p.Print("[{0:d}] name:    {1!s}".format(di, array.Get(i + 0)))
+      p.Print("[{0:d}] details: {1!s} {2!s} field-index {3:d} pointer {4:d}".format(* \
+              self.Details(di, array.Get(i + 1))))
+      p.Print("[{0:d}] value:   {1!s}".format(di, array.Get(i + 2)))
 
     end = self.array.length // 3
     if length != end:
-      p.Print("[%i-%i] slack descriptors" % (length, end))
+      p.Print("[{0:d}-{1:d}] slack descriptors".format(length, end))
 
 
 class TransitionArray(object):
@@ -1415,25 +1415,25 @@ class TransitionArray(object):
     length = self.Length()
     array = self.array
 
-    p.Print("Transitions(%08x, length=%d)" % (array.address, length))
-    p.Print("[backpointer] %s" % (array.Get(0)))
+    p.Print("Transitions({0:08x}, length={1:d})".format(array.address, length))
+    p.Print("[backpointer] {0!s}".format((array.Get(0))))
     if self.IsSimpleTransition():
       if length == 1:
-        p.Print("[simple target] %s" % (array.Get(1)))
+        p.Print("[simple target] {0!s}".format((array.Get(1))))
       return
 
     elements = array.Get(1)
     if elements is not None:
-      p.Print("[elements   ] %s" % (elements))
+      p.Print("[elements   ] {0!s}".format((elements)))
 
     prototype = array.Get(2)
     if prototype is not None:
-      p.Print("[prototype  ] %s" % (prototype))
+      p.Print("[prototype  ] {0!s}".format((prototype)))
 
     for di in xrange(length):
       i = 3 + di * 2
-      p.Print("[%i] symbol: %s" % (di, array.Get(i + 0)))
-      p.Print("[%i] target: %s" % (di, array.Get(i + 1)))
+      p.Print("[{0:d}] symbol: {1!s}".format(di, array.Get(i + 0)))
+      p.Print("[{0:d}] target: {1!s}".format(di, array.Get(i + 1)))
 
 
 class JSFunction(HeapObject):
@@ -1451,12 +1451,12 @@ class JSFunction(HeapObject):
     self.shared = self.ObjectField(self.SharedOffset())
 
   def Print(self, p):
-    source = "\n".join("  %s" % line for line in self._GetSource().split("\n"))
-    p.Print("JSFunction(%s) {" % self.heap.reader.FormatIntPtr(self.address))
+    source = "\n".join("  {0!s}".format(line) for line in self._GetSource().split("\n"))
+    p.Print("JSFunction({0!s}) {{".format(self.heap.reader.FormatIntPtr(self.address)))
     p.Indent()
-    p.Print("inferred name: %s" % self.shared.inferred_name)
+    p.Print("inferred name: {0!s}".format(self.shared.inferred_name))
     if self.shared.script.Is(Script) and self.shared.script.name.Is(String):
-      p.Print("script name: %s" % self.shared.script.name)
+      p.Print("script name: {0!s}".format(self.shared.script.name))
     p.Print("source:")
     p.PrintLines(self._GetSource().split("\n"))
     p.Print("code:")
@@ -1471,8 +1471,7 @@ class JSFunction(HeapObject):
     inferred_name = ""
     if self.shared is not None and self.shared.Is(SharedFunctionInfo):
       inferred_name = self.shared.inferred_name
-    return "JSFunction(%s, %s) " % \
-          (self.heap.reader.FormatIntPtr(self.address), inferred_name)
+    return "JSFunction({0!s}, {1!s}) ".format(self.heap.reader.FormatIntPtr(self.address), inferred_name)
 
   def _GetSource(self):
     source = "?source?"
@@ -1551,10 +1550,10 @@ class CodeCache(HeapObject):
     self.normal_type_cache = self.ObjectField(self.NormalTypeCacheOffset())
 
   def Print(self, p):
-    p.Print("CodeCache(%s) {" % self.heap.reader.FormatIntPtr(self.address))
+    p.Print("CodeCache({0!s}) {{".format(self.heap.reader.FormatIntPtr(self.address)))
     p.Indent()
-    p.Print("default cache: %s" % self.default_cache)
-    p.Print("normal type cache: %s" % self.normal_type_cache)
+    p.Print("default cache: {0!s}".format(self.default_cache))
+    p.Print("normal type cache: {0!s}".format(self.normal_type_cache))
     p.Dedent()
     p.Print("}")
 
@@ -1579,9 +1578,9 @@ class Code(HeapObject):
 
   def Print(self, p):
     lines = self.heap.reader.GetDisasmLines(self.entry, self.instruction_size)
-    p.Print("Code(%s) {" % self.heap.reader.FormatIntPtr(self.address))
+    p.Print("Code({0!s}) {{".format(self.heap.reader.FormatIntPtr(self.address)))
     p.Indent()
-    p.Print("instruction_size: %d" % self.instruction_size)
+    p.Print("instruction_size: {0:d}".format(self.instruction_size))
     p.PrintLines(self._FormatLine(line) for line in lines)
     p.Dedent()
     p.Print("}")
@@ -1688,7 +1687,7 @@ class KnownObject(HeapObject):
     self.known_name = known_name
 
   def __str__(self):
-    return "<%s>" % self.known_name
+    return "<{0!s}>".format(self.known_name)
 
 
 class KnownMap(HeapObject):
@@ -1698,7 +1697,7 @@ class KnownMap(HeapObject):
     self.known_name = known_name
 
   def __str__(self):
-    return "<%s>" % self.known_name
+    return "<{0!s}>".format(self.known_name)
 
 
 COMMENT_RE = re.compile(r"^C (0x[0-9a-fA-F]+) (.*)$")
@@ -1733,7 +1732,7 @@ class InspectionInfo(object):
 
   def save_page_address(self, page_kind, address):
     with open(self.comment_file, "a") as f:
-      f.write("P %s 0x%x\n" % (page_kind, address))
+      f.write("P {0!s} 0x{1:x}\n".format(page_kind, address))
       f.close()
 
   def color_addresses(self):
@@ -1760,14 +1759,14 @@ class InspectionInfo(object):
   def get_style_class_string(self, address):
     style = self.get_style_class(address)
     if style != None:
-      return " class=\"%s\" " % style
+      return " class=\"{0!s}\" ".format(style)
     else:
       return ""
 
   def set_comment(self, address, comment):
     self.address_comments[address] = comment
     with open(self.comment_file, "a") as f:
-      f.write("C 0x%x %s\n" % (address, comment))
+      f.write("C 0x{0:x} {1!s}\n".format(address, comment))
       f.close()
 
   def get_comment(self, address):
@@ -1843,9 +1842,9 @@ class InspectionPadawan(object):
     found_obj = self.SenseObject(tagged_address)
     if found_obj: return found_obj
     if (tagged_address & 1) == 0:
-      return "Smi(%d)" % (tagged_address / 2)
+      return "Smi({0:d})".format((tagged_address / 2))
     else:
-      return "Unknown(%s)" % self.reader.FormatIntPtr(tagged_address)
+      return "Unknown({0!s})".format(self.reader.FormatIntPtr(tagged_address))
 
   def FindObject(self, tagged_address):
     """When used as a mixin in place of V8Heap."""
@@ -2165,13 +2164,13 @@ class InspectionWebHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         else:
           self.send_error(404,'Invalid params')
       else:
-        self.send_error(404,'File Not Found: %s' % self.path)
+        self.send_error(404,'File Not Found: {0!s}'.format(self.path))
 
     except IOError:
-      self.send_error(404,'File Not Found: %s' % self.path)
+      self.send_error(404,'File Not Found: {0!s}'.format(self.path))
 
     except WebParameterError as e:
-      self.send_error(404, 'Web parameter error: %s' % e.message)
+      self.send_error(404, 'Web parameter error: {0!s}'.format(e.message))
 
 
 HTML_REG_FORMAT = "<span class=\"register\"><b>%s</b>:&nbsp;%s</span><br/>\n"
@@ -2225,7 +2224,7 @@ class InspectionWebFormatter(object):
       print "Invalid address"
 
   def td_from_address(self, f, address):
-    f.write("<td %s>" % self.comments.get_style_class_string(address))
+    f.write("<td {0!s}>".format(self.comments.get_style_class_string(address)))
 
   def format_address(self, maybeaddress, straddress = None):
     if maybeaddress is None:
@@ -2236,8 +2235,7 @@ class InspectionWebFormatter(object):
       style_class = ""
       if not self.reader.IsValidAddress(maybeaddress):
         style_class = " class=\"nodump\""
-      return ("<a %s href=\"search.html?%s&amp;val=%s\">%s</a>" %
-              (style_class, self.encfilename, straddress, straddress))
+      return ("<a {0!s} href=\"search.html?{1!s}&amp;val={2!s}\">{3!s}</a>".format(style_class, self.encfilename, straddress, straddress))
 
   def output_header(self, f):
     f.write(WEB_HEADER %
@@ -2273,9 +2271,9 @@ class InspectionWebFormatter(object):
     self.server.output_dump_desc_field(f, self.dumpfilename)
     f.write("<br>\n")
     f.write("Filename: ")
-    f.write("<span class=\"code\">%s</span><br>\n" % (self.dumpfilename))
+    f.write("<span class=\"code\">{0!s}</span><br>\n".format((self.dumpfilename)))
     dt = datetime.datetime.fromtimestamp(self.reader.header.time_date_stampt)
-    f.write("Timestamp: %s<br>\n" % dt.strftime('%Y-%m-%d %H:%M:%S'))
+    f.write("Timestamp: {0!s}<br>\n".format(dt.strftime('%Y-%m-%d %H:%M:%S')))
     self.output_context(f, InspectionWebFormatter.CONTEXT_FULL)
     self.output_address_ranges(f)
     self.output_footer(f)
@@ -2297,32 +2295,32 @@ class InspectionWebFormatter(object):
     for start in sorted(regions):
       size = regions[start]
       f.write("<tr>")
-      f.write("<td>%s</td>" % self.format_address(start))
-      f.write("<td>&nbsp;%s</td>" % self.format_address(start + size))
-      f.write("<td>&nbsp;%d</td>" % size)
+      f.write("<td>{0!s}</td>".format(self.format_address(start)))
+      f.write("<td>&nbsp;{0!s}</td>".format(self.format_address(start + size)))
+      f.write("<td>&nbsp;{0:d}</td>".format(size))
       f.write("</tr>\n")
     f.write("</table>\n")
     f.write('</div>')
     return
 
   def output_module_details(self, f, module):
-    f.write("<b>%s</b>" % GetModuleName(self.reader, module))
+    f.write("<b>{0!s}</b>".format(GetModuleName(self.reader, module)))
     file_version = GetVersionString(module.version_info.dwFileVersionMS,
                                     module.version_info.dwFileVersionLS)
     product_version = GetVersionString(module.version_info.dwProductVersionMS,
                                        module.version_info.dwProductVersionLS)
     f.write("<br>&nbsp;&nbsp;\n")
-    f.write("base: %s" % self.reader.FormatIntPtr(module.base_of_image))
+    f.write("base: {0!s}".format(self.reader.FormatIntPtr(module.base_of_image)))
     f.write("<br>&nbsp;&nbsp;\n")
-    f.write("  end: %s" % self.reader.FormatIntPtr(module.base_of_image +
-                                            module.size_of_image))
+    f.write("  end: {0!s}".format(self.reader.FormatIntPtr(module.base_of_image +
+                                            module.size_of_image)))
     f.write("<br>&nbsp;&nbsp;\n")
-    f.write("  file version: %s" % file_version)
+    f.write("  file version: {0!s}".format(file_version))
     f.write("<br>&nbsp;&nbsp;\n")
-    f.write("  product version: %s" % product_version)
+    f.write("  product version: {0!s}".format(product_version))
     f.write("<br>&nbsp;&nbsp;\n")
     time_date_stamp = datetime.datetime.fromtimestamp(module.time_date_stamp)
-    f.write("  timestamp: %s" % time_date_stamp)
+    f.write("  timestamp: {0!s}".format(time_date_stamp))
     f.write("<br>\n");
 
   def output_modules(self, f):
@@ -2338,14 +2336,14 @@ class InspectionWebFormatter(object):
     exception_thread = self.reader.thread_map[self.reader.exception.thread_id]
     f.write("<h3>Exception context</h3>")
     f.write('<div class="code">\n')
-    f.write("Thread id: %d" % exception_thread.id)
-    f.write("&nbsp;&nbsp; Exception code: %08X<br/>\n" %
-            self.reader.exception.exception.code)
+    f.write("Thread id: {0:d}".format(exception_thread.id))
+    f.write("&nbsp;&nbsp; Exception code: {0:08X}<br/>\n".format(
+            self.reader.exception.exception.code))
     if details == InspectionWebFormatter.CONTEXT_FULL:
       if self.reader.exception.exception.parameter_count > 0:
         f.write("&nbsp;&nbsp; Exception parameters: \n")
         for i in xrange(0, self.reader.exception.exception.parameter_count):
-          f.write("%08x" % self.reader.exception.exception.information[i])
+          f.write("{0:08x}".format(self.reader.exception.exception.information[i]))
         f.write("<br><br>\n")
 
     for r in CONTEXT_FOR_ARCH[self.reader.arch]:
@@ -2353,10 +2351,10 @@ class InspectionWebFormatter(object):
               (r, self.format_address(self.reader.Register(r))))
     # TODO(vitalyr): decode eflags.
     if self.reader.arch in [MD_CPU_ARCHITECTURE_ARM, MD_CPU_ARCHITECTURE_ARM64]:
-      f.write("<b>cpsr</b>: %s" % bin(self.reader.exception_context.cpsr)[2:])
+      f.write("<b>cpsr</b>: {0!s}".format(bin(self.reader.exception_context.cpsr)[2:]))
     else:
-      f.write("<b>eflags</b>: %s" %
-              bin(self.reader.exception_context.eflags)[2:])
+      f.write("<b>eflags</b>: {0!s}".format(
+              bin(self.reader.exception_context.eflags)[2:]))
     f.write('</div>\n')
     return
 
@@ -2377,7 +2375,7 @@ class InspectionWebFormatter(object):
       self.output_header(f)
       address = int(straddress, 0)
       if not self.reader.IsValidAddress(address):
-        f.write("<h3>Address 0x%x not found in the dump.</h3>" % address)
+        f.write("<h3>Address 0x{0:x} not found in the dump.</h3>".format(address))
         return
       region = self.reader.FindRegion(address)
       if datakind == "address":
@@ -2387,15 +2385,15 @@ class InspectionWebFormatter(object):
       self.output_footer(f)
 
     except ValueError:
-      f.write("<h3>Unrecognized address format \"%s\".</h3>" % straddress)
+      f.write("<h3>Unrecognized address format \"{0!s}\".</h3>".format(straddress))
     return
 
   def output_words(self, f, start_address, end_address,
                    highlight_address, desc):
     region = self.reader.FindRegion(highlight_address)
     if region is None:
-      f.write("<h3>Address 0x%x not found in the dump.</h3>\n" %
-              (highlight_address))
+      f.write("<h3>Address 0x{0:x} not found in the dump.</h3>\n".format(
+              (highlight_address)))
       return
     size = self.heap.PointerSize()
     start_address = self.align_down(start_address, size)
@@ -2431,7 +2429,7 @@ class InspectionWebFormatter(object):
           straddress += "??"
         for i in reversed(
             xrange(max(slot, region[0]), min(slot + size, end_region))):
-          straddress += "%02x" % self.reader.ReadU8(i)
+          straddress += "{0:02x}".format(self.reader.ReadU8(i))
         for i in xrange(slot, region[0]):
           straddress += "??"
       else:
@@ -2458,13 +2456,13 @@ class InspectionWebFormatter(object):
       f.write(address_fmt % self.format_address(slot))
       f.write("  ")
       self.td_from_address(f, maybe_address)
-      f.write(":&nbsp;%s&nbsp;</td>\n" % straddress)
+      f.write(":&nbsp;{0!s}&nbsp;</td>\n".format(straddress))
       f.write("  <td>")
       if maybe_address != None:
         self.output_comment_box(
             f, "sv-" + self.reader.FormatIntPtr(slot), maybe_address)
       f.write("  </td>\n")
-      f.write("  <td>%s</td>\n" % (heap_object or ''))
+      f.write("  <td>{0!s}</td>\n".format((heap_object or '')))
       f.write("</tr>\n")
     f.write("</table>\n")
     f.write("</div>")
@@ -2473,8 +2471,8 @@ class InspectionWebFormatter(object):
   def output_ascii(self, f, start_address, end_address, highlight_address):
     region = self.reader.FindRegion(highlight_address)
     if region is None:
-      f.write("<h3>Address %x not found in the dump.</h3>" %
-          highlight_address)
+      f.write("<h3>Address {0:x} not found in the dump.</h3>".format(
+          highlight_address))
       return
     if start_address < region[0]:
       start_address = region[0]
@@ -2483,12 +2481,10 @@ class InspectionWebFormatter(object):
 
     expand = ""
     if start_address != region[0] or end_address != region[0] + region[1]:
-      link = ("data.html?%s&amp;val=0x%x&amp;type=ascii#highlight" %
-              (self.encfilename, highlight_address))
-      expand = "(<a href=\"%s\">more...</a>)" % link
+      link = ("data.html?{0!s}&amp;val=0x{1:x}&amp;type=ascii#highlight".format(self.encfilename, highlight_address))
+      expand = "(<a href=\"{0!s}\">more...</a>)".format(link)
 
-    f.write("<h3>ASCII dump 0x%x - 0x%x, highlighting 0x%x %s</h3>" %
-            (start_address, end_address, highlight_address, expand))
+    f.write("<h3>ASCII dump 0x{0:x} - 0x{1:x}, highlighting 0x{2:x} {3!s}</h3>".format(start_address, end_address, highlight_address, expand))
 
     line_width = 64
 
@@ -2501,7 +2497,7 @@ class InspectionWebFormatter(object):
       if address % 64 == 0:
         if address != start:
           f.write("<br>")
-        f.write("0x%08x:&nbsp;" % address)
+        f.write("0x{0:08x}:&nbsp;".format(address))
       if address < start_address:
         f.write("&nbsp;")
       else:
@@ -2524,14 +2520,14 @@ class InspectionWebFormatter(object):
       self.output_header(f)
       address = int(straddress, 0)
       if not self.reader.IsValidAddress(address):
-        f.write("<h3>Address 0x%x not found in the dump.</h3>" % address)
+        f.write("<h3>Address 0x{0:x} not found in the dump.</h3>".format(address))
         return
       region = self.reader.FindRegion(address)
       self.output_disasm_range(
           f, region[0], region[0] + region[1], address, strexact == "on")
       self.output_footer(f)
     except ValueError:
-      f.write("<h3>Unrecognized address format \"%s\".</h3>" % straddress)
+      f.write("<h3>Unrecognized address format \"{0!s}\".</h3>".format(straddress))
     return
 
   def output_disasm_range(
@@ -2562,8 +2558,7 @@ class InspectionWebFormatter(object):
                 "&amp;val=0x%x#highlight\">more...</a>)" %
                 (self.encfilename, exactness, highlight_address))
 
-    f.write("<h3>Disassembling 0x%x - 0x%x, highlighting 0x%x %s</h3>" %
-            (start_address, end_address, highlight_address, expand))
+    f.write("<h3>Disassembling 0x{0:x} - 0x{1:x}, highlighting 0x{2:x} {3!s}</h3>".format(start_address, end_address, highlight_address, expand))
     f.write('<div class="code">')
     f.write("<table class=\"codedump\">\n");
     for i in xrange(len(lines)):
@@ -2590,8 +2585,7 @@ class InspectionWebFormatter(object):
       extra.append(cgi.escape(str(object_info)))
     if len(extra) == 0:
       return line
-    return ("%s <span class=\"disasmcomment\">;; %s</span>" %
-            (line, ", ".join(extra)))
+    return ("{0!s} <span class=\"disasmcomment\">;; {1!s}</span>".format(line, ", ".join(extra)))
 
   def format_disasm_line(
       self, f, start, line, next_address, highlight_address):
@@ -2623,7 +2617,7 @@ class InspectionWebFormatter(object):
         if len(words) > 6 and words[5] == "call":
           offset = int(words[4] + words[3] + words[2] + words[1], 16)
           target = (line_address + offset + 5) & 0xFFFFFFFF
-          code = code.replace(words[6], "0x%08x" % target)
+          code = code.replace(words[6], "0x{0:08x}".format(target))
     # TODO(jkummerow): port this hack to ARM and x64.
 
     opcodes = code[:op_offset]
@@ -2634,10 +2628,9 @@ class InspectionWebFormatter(object):
     f.write(address_fmt % marker)
     f.write("  ")
     self.td_from_address(f, line_address)
-    f.write("%s (+0x%x)</td>\n" %
-            (self.format_address(line_address), line[0]))
-    f.write("  <td>:&nbsp;%s&nbsp;</td>\n" % opcodes)
-    f.write("  <td>%s</td>\n" % code)
+    f.write("{0!s} (+0x{1:x})</td>\n".format(self.format_address(line_address), line[0]))
+    f.write("  <td>:&nbsp;{0!s}&nbsp;</td>\n".format(opcodes))
+    f.write("  <td>{0!s}</td>\n".format(code))
     f.write("</tr>\n")
 
   def output_comment_box(self, f, prefix, address):
@@ -2653,14 +2646,12 @@ class InspectionWebFormatter(object):
     f.write("Addresses")
     toomany = len(results) > self.MAX_FOUND_RESULTS
     if toomany:
-      f.write("(found %i results, displaying only first %i)" %
-              (len(results), self.MAX_FOUND_RESULTS))
+      f.write("(found {0:d} results, displaying only first {1:d})".format(len(results), self.MAX_FOUND_RESULTS))
     f.write(": \n")
     results = sorted(results)
     results = results[:min(len(results), self.MAX_FOUND_RESULTS)]
     for address in results:
-      f.write("<span %s>%s</span>\n" %
-              (self.comments.get_style_class_string(address),
+      f.write("<span {0!s}>{1!s}</span>\n".format(self.comments.get_style_class_string(address),
                self.format_address(address)))
     if toomany:
       f.write("...\n")
@@ -2668,20 +2659,19 @@ class InspectionWebFormatter(object):
 
   def output_page_info(self, f, page_kind, page_address, my_page_address):
     if my_page_address == page_address and page_address != 0:
-      f.write("Marked first %s page.\n" % page_kind)
+      f.write("Marked first {0!s} page.\n".format(page_kind))
     else:
-      f.write("<span id=\"%spage\" style=\"display:none\">" % page_kind)
-      f.write("Marked first %s page." % page_kind)
+      f.write("<span id=\"{0!s}page\" style=\"display:none\">".format(page_kind))
+      f.write("Marked first {0!s} page.".format(page_kind))
       f.write("</span>\n")
-      f.write("<button onclick=\"onpage('%spage', '0x%x')\">" %
-              (page_kind, my_page_address))
-      f.write("Mark as first %s page</button>\n" % page_kind)
+      f.write("<button onclick=\"onpage('{0!s}page', '0x{1:x}')\">".format(page_kind, my_page_address))
+      f.write("Mark as first {0!s} page</button>\n".format(page_kind))
     return
 
   def output_search_res(self, f, straddress):
     try:
       self.output_header(f)
-      f.write("<h3>Search results for %s</h3>" % straddress)
+      f.write("<h3>Search results for {0!s}</h3>".format(straddress))
 
       address = int(straddress, 0)
 
@@ -2698,8 +2688,8 @@ class InspectionWebFormatter(object):
                             page_address)
 
       if not self.reader.IsValidAddress(address):
-        f.write("<h3>The contents at address %s not found in the dump.</h3>" % \
-                straddress)
+        f.write("<h3>The contents at address {0!s} not found in the dump.</h3>".format( \
+                straddress))
       else:
         # Print as words
         self.output_words(f, address - 8, address + 32, address, "Dump")
@@ -2715,22 +2705,22 @@ class InspectionWebFormatter(object):
       aligned_res, unaligned_res = self.reader.FindWordList(address)
 
       if len(aligned_res) > 0:
-        f.write("<h3>Occurrences of 0x%x at aligned addresses</h3>\n" %
-                address)
+        f.write("<h3>Occurrences of 0x{0:x} at aligned addresses</h3>\n".format(
+                address))
         self.output_find_results(f, aligned_res)
 
       if len(unaligned_res) > 0:
-        f.write("<h3>Occurrences of 0x%x at unaligned addresses</h3>\n" % \
-                address)
+        f.write("<h3>Occurrences of 0x{0:x} at unaligned addresses</h3>\n".format( \
+                address))
         self.output_find_results(f, unaligned_res)
 
       if len(aligned_res) + len(unaligned_res) == 0:
-        f.write("<h3>No occurences of 0x%x found in the dump</h3>\n" % address)
+        f.write("<h3>No occurences of 0x{0:x} found in the dump</h3>\n".format(address))
 
       self.output_footer(f)
 
     except ValueError:
-      f.write("<h3>Unrecognized address format \"%s\".</h3>" % straddress)
+      f.write("<h3>Unrecognized address format \"{0!s}\".</h3>".format(straddress))
     return
 
   def output_disasm_pc(self, f):
@@ -2839,7 +2829,7 @@ class InspectionWebServer(BaseHTTPServer.HTTPServer):
       return self.default_formatter
     else:
       if not DUMP_FILE_RE.match(name):
-        raise WebParameterError("Invalid name '%s'" % name)
+        raise WebParameterError("Invalid name '{0!s}'".format(name))
       formatter = self.formatters.get(name, None)
       if formatter is None:
         try:
@@ -2847,7 +2837,7 @@ class InspectionWebServer(BaseHTTPServer.HTTPServer):
               self.switches, os.path.join(self.dumppath, name), self)
           self.formatters[name] = formatter
         except IOError:
-          raise WebParameterError("Could not open dump '%s'" % name)
+          raise WebParameterError("Could not open dump '{0!s}'".format(name))
       return formatter
 
   def output_dumps(self, f):
@@ -2871,8 +2861,8 @@ class InspectionWebServer(BaseHTTPServer.HTTPServer):
       fnames = dumps_by_time[mtime]
       for fname in fnames:
         f.write("<tr>\n")
-        f.write("<td><a href=\"summary.html?%s\">%s</a></td>\n" % (
-            (urllib.urlencode({ 'dump' : fname }), fname)))
+        f.write("<td><a href=\"summary.html?{0!s}\">{1!s}</a></td>\n".format(*(
+            (urllib.urlencode({ 'dump' : fname }), fname))))
         f.write("<td>&nbsp;&nbsp;&nbsp;")
         f.write(datetime.datetime.fromtimestamp(mtime))
         f.write("</td>")
@@ -2906,9 +2896,9 @@ class InspectionShell(cmd.Cmd):
         break
       address += 1
     if string == "":
-      print "Not an ASCII string at %s" % self.reader.FormatIntPtr(address)
+      print "Not an ASCII string at {0!s}".format(self.reader.FormatIntPtr(address))
     else:
-      print "%s\n" % string
+      print "{0!s}\n".format(string)
 
   def do_dd(self, args):
     """
@@ -2931,7 +2921,7 @@ class InspectionShell(cmd.Cmd):
         return
       maybe_address = self.reader.ReadUIntPtr(slot)
       heap_object = self.padawan.SenseObject(maybe_address)
-      print "%s: %s %s" % (self.reader.FormatIntPtr(slot),
+      print "{0!s}: {1!s} {2!s}".format(self.reader.FormatIntPtr(slot),
                            self.reader.FormatIntPtr(maybe_address),
                            heap_object or '')
 
@@ -3021,7 +3011,7 @@ class InspectionShell(cmd.Cmd):
      List all available memory regions.
     """
     def print_region(reader, start, size, location):
-      print "  %s - %s (%d bytes)" % (reader.FormatIntPtr(start),
+      print "  {0!s} - {1!s} ({2:d} bytes)".format(reader.FormatIntPtr(start),
                                       reader.FormatIntPtr(start + size),
                                       size)
     print "Available memory regions:"
@@ -3054,7 +3044,7 @@ class InspectionShell(cmd.Cmd):
     except ValueError:
       print "Malformed word, prefix with '0x' to use hexadecimal format."
       return
-    print "Searching for word %d/0x%s:" % (word, self.reader.FormatIntPtr(word))
+    print "Searching for word {0:d}/0x{1!s}:".format(word, self.reader.FormatIntPtr(word))
     self.reader.FindWord(word)
 
   def do_sh(self, none):
@@ -3106,7 +3096,7 @@ CONTEXT_FOR_ARCH = {
 KNOWN_MODULES = {'chrome.exe', 'chrome.dll'}
 
 def GetVersionString(ms, ls):
-  return "%d.%d.%d.%d" % (ms >> 16, ms & 0xffff, ls >> 16, ls & 0xffff)
+  return "{0:d}.{1:d}.{2:d}.{3:d}".format(ms >> 16, ms & 0xffff, ls >> 16, ls & 0xffff)
 
 
 def GetModuleName(reader, module):
@@ -3117,18 +3107,18 @@ def GetModuleName(reader, module):
 
 
 def PrintModuleDetails(reader, module):
-  print "%s" % GetModuleName(reader, module)
+  print "{0!s}".format(GetModuleName(reader, module))
   file_version = GetVersionString(module.version_info.dwFileVersionMS,
                                   module.version_info.dwFileVersionLS)
   product_version = GetVersionString(module.version_info.dwProductVersionMS,
                                      module.version_info.dwProductVersionLS)
-  print "  base: %s" % reader.FormatIntPtr(module.base_of_image)
-  print "  end: %s" % reader.FormatIntPtr(module.base_of_image +
-                                          module.size_of_image)
-  print "  file version: %s" % file_version
-  print "  product version: %s" % product_version
+  print "  base: {0!s}".format(reader.FormatIntPtr(module.base_of_image))
+  print "  end: {0!s}".format(reader.FormatIntPtr(module.base_of_image +
+                                          module.size_of_image))
+  print "  file version: {0!s}".format(file_version)
+  print "  product version: {0!s}".format(product_version)
   time_date_stamp = datetime.datetime.fromtimestamp(module.time_date_stamp)
-  print "  timestamp: %s" % time_date_stamp
+  print "  timestamp: {0!s}".format(time_date_stamp)
 
 
 def AnalyzeMinidump(options, minidump_name):
@@ -3140,23 +3130,23 @@ def AnalyzeMinidump(options, minidump_name):
   else:
     print "Exception info:"
     exception_thread = reader.thread_map[reader.exception.thread_id]
-    print "  thread id: %d" % exception_thread.id
-    print "  code: %08X" % reader.exception.exception.code
+    print "  thread id: {0:d}".format(exception_thread.id)
+    print "  code: {0:08X}".format(reader.exception.exception.code)
     print "  context:"
     for r in CONTEXT_FOR_ARCH[reader.arch]:
-      print "    %s: %s" % (r, reader.FormatIntPtr(reader.Register(r)))
+      print "    {0!s}: {1!s}".format(r, reader.FormatIntPtr(reader.Register(r)))
     # TODO(vitalyr): decode eflags.
     if reader.arch in [MD_CPU_ARCHITECTURE_ARM, MD_CPU_ARCHITECTURE_ARM64]:
-      print "    cpsr: %s" % bin(reader.exception_context.cpsr)[2:]
+      print "    cpsr: {0!s}".format(bin(reader.exception_context.cpsr)[2:])
     else:
-      print "    eflags: %s" % bin(reader.exception_context.eflags)[2:]
+      print "    eflags: {0!s}".format(bin(reader.exception_context.eflags)[2:])
 
     print
     print "  modules:"
     for module in reader.module_list.modules:
       name = GetModuleName(reader, module)
       if name in KNOWN_MODULES:
-        print "    %s at %08X" % (name, module.base_of_image)
+        print "    {0!s} at {1:08X}".format(name, module.base_of_image)
         reader.TryLoadSymbolsFor(name, module)
     print
 
@@ -3185,7 +3175,7 @@ def AnalyzeMinidump(options, minidump_name):
     lines = reader.GetDisasmLines(disasm_start, disasm_bytes)
 
     if not lines:
-      print "Could not disassemble using %s." % OBJDUMP_BIN
+      print "Could not disassemble using {0!s}.".format(OBJDUMP_BIN)
       print "Pass path to architecture specific objdump via --objdump?"
 
     for line in lines:
@@ -3229,12 +3219,12 @@ def AnalyzeMinidump(options, minidump_name):
           elif maybe_address_contents == 0xdecade01:
             oom_comment = " <----- HeapStats end marker"
           elif maybe_address_contents is not None:
-            oom_comment = " %d (%d Mbytes)" % (maybe_address_contents,
+            oom_comment = " {0:d} ({1:d} Mbytes)".format(maybe_address_contents,
                                             maybe_address_contents >> 20)
         if slot == frame_pointer:
           maybe_symbol = "<---- frame pointer"
           frame_pointer = maybe_address
-        print "%s: %s %s %s%s" % (reader.FormatIntPtr(slot),
+        print "{0!s}: {1!s} {2!s} {3!s}{4!s}".format(reader.FormatIntPtr(slot),
                                   reader.FormatIntPtr(maybe_address),
                                    "".join(ascii_content),
                                    maybe_symbol or "",
@@ -3253,7 +3243,7 @@ if __name__ == "__main__":
   parser.add_option("-s", "--shell", dest="shell", action="store_true",
                     help="start an interactive inspector shell")
   parser.add_option("-w", "--web", dest="web", action="store_true",
-                    help="start a web server on localhost:%i" % PORT_NUMBER)
+                    help="start a web server on localhost:{0:d}".format(PORT_NUMBER))
   parser.add_option("-c", "--command", dest="command", default="",
                     help="run an interactive inspector shell command and exit")
   parser.add_option("-f", "--full", dest="full", action="store_true",
@@ -3268,7 +3258,7 @@ if __name__ == "__main__":
     disasm.OBJDUMP_BIN = options.objdump
     OBJDUMP_BIN = options.objdump
   else:
-    print "Cannot find %s, falling back to default objdump" % options.objdump
+    print "Cannot find {0!s}, falling back to default objdump".format(options.objdump)
   if len(args) != 1:
     parser.print_help()
     sys.exit(1)
@@ -3276,7 +3266,7 @@ if __name__ == "__main__":
     try:
       server = InspectionWebServer(PORT_NUMBER, options, args[0])
       print 'Started httpserver on port ' , PORT_NUMBER
-      webbrowser.open('http://localhost:%i/summary.html' % PORT_NUMBER)
+      webbrowser.open('http://localhost:{0:d}/summary.html'.format(PORT_NUMBER))
       server.serve_forever()
     except KeyboardInterrupt:
       print '^C received, shutting down the web server'

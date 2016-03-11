@@ -106,11 +106,11 @@ def PrintDependencies(projects, deps):
   print "--                                   --"
 
   for (project, dep_list) in sorted(deps.items()):
-    print "Project : %s" % project
-    print "Path : %s" % projects[project][0]
+    print "Project : {0!s}".format(project)
+    print "Path : {0!s}".format(projects[project][0])
     if dep_list:
       for dep in dep_list:
-        print "  - %s" % dep
+        print "  - {0!s}".format(dep)
     print ""
 
   print "--                                   --"
@@ -145,7 +145,7 @@ def PrintVCProj(projects):
     pretty = pretty_vcproj
     argv = [ '',
              project_path,
-             '$(SolutionDir)=%s\\' % os.path.dirname(sys.argv[1]),
+             '$(SolutionDir)={0!s}\\'.format(os.path.dirname(sys.argv[1])),
            ]
     argv.extend(sys.argv[3:])
     pretty.main(argv)
@@ -153,7 +153,7 @@ def PrintVCProj(projects):
 def main():
   # check if we have exactly 1 parameter.
   if len(sys.argv) < 2:
-    print 'Usage: %s "c:\\path\\to\\project.sln"' % sys.argv[0]
+    print 'Usage: {0!s} "c:\\path\\to\\project.sln"'.format(sys.argv[0])
     return 1
 
   (projects, deps) = ParseSolution(sys.argv[1])

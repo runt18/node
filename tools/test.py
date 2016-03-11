@@ -86,11 +86,11 @@ class ProgressIndicator(object):
       negative_marker = '[negative] '
     else:
       negative_marker = ''
-    print "=== %(label)s %(negative)s===" % {
+    print "=== {label!s} {negative!s}===".format(**{
       'label': test.GetLabel(),
       'negative': negative_marker
-    }
-    print "Path: %s" % "/".join(test.path)
+    })
+    print "Path: {0!s}".format("/".join(test.path))
 
   def Run(self, tasks):
     self.Starting()
@@ -174,7 +174,7 @@ def EscapeCommand(command):
     if ' ' in part:
       # Escape spaces.  We may need to escape more characters for this
       # to work properly.
-      parts.append('"%s"' % part)
+      parts.append('"{0!s}"'.format(part))
     else:
       parts.append(part)
   return " ".join(parts)
@@ -183,7 +183,7 @@ def EscapeCommand(command):
 class SimpleProgressIndicator(ProgressIndicator):
 
   def Starting(self):
-    print 'Running %i tests' % len(self.cases)
+    print 'Running {0:d} tests'.format(len(self.cases))
 
   def Done(self):
     print
@@ -195,7 +195,7 @@ class SimpleProgressIndicator(ProgressIndicator):
       if failed.output.stdout:
         print "--- stdout ---"
         print failed.output.stdout.strip()
-      print "Command: %s" % EscapeCommand(failed.command)
+      print "Command: {0!s}".format(EscapeCommand(failed.command))
       if failed.HasCrashed():
         print "--- CRASHED ---"
       if failed.HasTimedOut():
@@ -207,16 +207,16 @@ class SimpleProgressIndicator(ProgressIndicator):
     else:
       print
       print "==="
-      print "=== %i tests failed" % len(self.failed)
+      print "=== {0:d} tests failed".format(len(self.failed))
       if self.crashed > 0:
-        print "=== %i tests CRASHED" % self.crashed
+        print "=== {0:d} tests CRASHED".format(self.crashed)
       print "==="
 
 
 class VerboseProgressIndicator(SimpleProgressIndicator):
 
   def AboutToRun(self, case):
-    print 'Starting %s...' % case.GetLabel()
+    print 'Starting {0!s}...'.format(case.GetLabel())
     sys.stdout.flush()
 
   def HasRun(self, output):
@@ -227,7 +227,7 @@ class VerboseProgressIndicator(SimpleProgressIndicator):
         outcome = 'FAIL'
     else:
       outcome = 'pass'
-    print 'Done running %s: %s' % (output.test.GetLabel(), outcome)
+    print 'Done running {0!s}: {1!s}'.format(output.test.GetLabel(), outcome)
 
 
 class DotsProgressIndicator(SimpleProgressIndicator):
@@ -261,7 +261,7 @@ class TapProgressIndicator(SimpleProgressIndicator):
       logger.info('# ' + l)
 
   def Starting(self):
-    logger.info('1..%i' % len(self.cases))
+    logger.info('1..{0:d}'.format(len(self.cases)))
     self._done = 0
 
   def AboutToRun(self, case):
@@ -271,7 +271,7 @@ class TapProgressIndicator(SimpleProgressIndicator):
     self._done += 1
     command = basename(output.command[-1])
     if output.UnexpectedOutput():
-      status_line = 'not ok %i %s' % (self._done, command)
+      status_line = 'not ok {0:d} {1!s}'.format(self._done, command)
       if FLAKY in output.test.outcomes and self.flaky_tests_mode == DONTCARE:
         status_line = status_line + ' # TODO : Fix flaky test'
       logger.info(status_line)
@@ -286,9 +286,9 @@ class TapProgressIndicator(SimpleProgressIndicator):
       skip = skip_regex.search(output.output.stdout)
       if skip:
         logger.info(
-          'ok %i %s # skip %s' % (self._done, command, skip.group(1)))
+          'ok {0:d} {1!s} # skip {2!s}'.format(self._done, command, skip.group(1)))
       else:
-        status_line = 'ok %i %s' % (self._done, command)
+        status_line = 'ok {0:d} {1!s}'.format(self._done, command)
         if FLAKY in output.test.outcomes:
           status_line = status_line + ' # TODO : Fix flaky test'
         logger.info(status_line)
@@ -301,7 +301,7 @@ class TapProgressIndicator(SimpleProgressIndicator):
       (duration.seconds + duration.days * 24 * 3600) * 10**6) / 10**6
 
     logger.info('  ---')
-    logger.info('  duration_ms: %d.%d' % (total_seconds, duration.microseconds / 1000))
+    logger.info('  duration_ms: {0:d}.{1:d}'.format(total_seconds, duration.microseconds / 1000))
     logger.info('  ...')
 
   def Done(self):
@@ -335,7 +335,7 @@ class CompactProgressIndicator(ProgressIndicator):
       stderr = output.output.stderr.strip()
       if len(stderr):
         print self.templates['stderr'] % stderr
-      print "Command: %s" % EscapeCommand(output.command)
+      print "Command: {0!s}".format(EscapeCommand(output.command))
       if output.HasCrashed():
         print "--- CRASHED ---"
       if output.HasTimedOut():
@@ -469,7 +469,7 @@ class TestCase(object):
 
     try:
       result = self.RunCommand(self.GetCommand(), {
-        "TEST_THREAD_ID": "%d" % self.thread_id
+        "TEST_THREAD_ID": "{0:d}".format(self.thread_id)
       })
     finally:
       # Tests can leave the tty in non-blocking mode. If the test runner
@@ -534,7 +534,7 @@ class TestOutput(object):
 
 def KillProcessWithID(pid):
   if utils.IsWindows():
-    os.popen('taskkill /T /F /PID %d' % pid)
+    os.popen('taskkill /T /F /PID {0:d}'.format(pid))
   else:
     os.kill(pid, signal.SIGTERM)
 
@@ -790,7 +790,7 @@ class Context(object):
     if arch == 'none':
       name = 'out/Debug/node' if mode == 'debug' else 'out/Release/node'
     else:
-      name = 'out/%s.%s/node' % (arch, mode)
+      name = 'out/{0!s}.{1!s}/node'.format(arch, mode)
 
     # Currently GYP does not support output_dir for MSVS.
     # http://code.google.com/p/gyp/issues/detail?id=40
@@ -886,7 +886,7 @@ class ListSet(Set):
     self.elms = elms
 
   def __str__(self):
-    return "ListSet%s" % str(self.elms)
+    return "ListSet{0!s}".format(str(self.elms))
 
   def Intersect(self, that):
     if not isinstance(that, ListSet):
@@ -1119,15 +1119,15 @@ def ParseCondition(expr):
   """Parses a logical expression into an Expression object"""
   tokens = Tokenizer(expr).Tokenize()
   if not tokens:
-    print "Malformed expression: '%s'" % expr
+    print "Malformed expression: '{0!s}'".format(expr)
     return None
   scan = Scanner(tokens)
   ast = ParseLogicalExpression(scan)
   if not ast:
-    print "Malformed expression: '%s'" % expr
+    print "Malformed expression: '{0!s}'".format(expr)
     return None
   if scan.HasMore():
-    print "Malformed expression: '%s'" % expr
+    print "Malformed expression: '{0!s}'".format(expr)
     return None
   return ast
 
@@ -1242,7 +1242,7 @@ def ReadConfigurationInto(path, sections, defs):
     if prefix_match:
       prefix = SplitPath(prefix_match.group(1).strip())
       continue
-    print "Malformed line: '%s'." % line
+    print "Malformed line: '{0!s}'.".format(line)
     return False
   return True
 
@@ -1341,7 +1341,7 @@ def ProcessOptions(options):
   if options.J:
     options.j = multiprocessing.cpu_count()
   if options.flaky_tests not in ["run", "skip", "dontcare"]:
-    print "Unknown flaky-tests mode %s" % options.flaky_tests
+    print "Unknown flaky-tests mode {0!s}".format(options.flaky_tests)
     return False
   return True
 
@@ -1423,7 +1423,7 @@ def GetSuites(test_root):
 
 def FormatTime(d):
   millis = round(d * 1000) % 1000
-  return time.strftime("%M:%S.", time.gmtime(d)) + ("%03i" % millis)
+  return time.strftime("%M:%S.", time.gmtime(d)) + ("{0:03d}".format(millis))
 
 
 def Main():
@@ -1504,7 +1504,7 @@ def Main():
       for mode in options.mode:
         vm = context.GetVm(arch, mode)
         if not exists(vm):
-          print "Can't find shell executable: '%s'" % vm
+          print "Can't find shell executable: '{0!s}'".format(vm)
           continue
         env = {
           'mode': mode,
@@ -1530,15 +1530,15 @@ def Main():
       if key in visited:
         continue
       visited.add(key)
-      print "--- begin source: %s ---" % test.GetLabel()
+      print "--- begin source: {0!s} ---".format(test.GetLabel())
       source = test.GetSource().strip()
       print source
-      print "--- end source: %s ---" % test.GetLabel()
+      print "--- end source: {0!s} ---".format(test.GetLabel())
     return 0
 
   if options.warn_unused:
     for rule in globally_unused_rules:
-      print "Rule for '%s' was not used." % '/'.join([str(s) for s in rule.path])
+      print "Rule for '{0!s}' was not used.".format('/'.join([str(s) for s in rule.path]))
 
   if options.report:
     PrintReport(all_cases)
@@ -1577,13 +1577,13 @@ def Main():
     # Write the times to stderr to make it easy to separate from the
     # test output.
     print
-    sys.stderr.write("--- Total time: %s ---\n" % FormatTime(duration))
+    sys.stderr.write("--- Total time: {0!s} ---\n".format(FormatTime(duration)))
     timed_tests = [ t.case for t in cases_to_run if not t.case.duration is None ]
     timed_tests.sort(lambda a, b: a.CompareTime(b))
     index = 1
     for entry in timed_tests[:20]:
       t = FormatTime(entry.duration)
-      sys.stderr.write("%4i (%s) %s\n" % (index, t, entry.GetLabel()))
+      sys.stderr.write("{0:4d} ({1!s}) {2!s}\n".format(index, t, entry.GetLabel()))
       index += 1
 
   return result

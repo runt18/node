@@ -123,7 +123,7 @@ class Code(object):
     if self.other_names is None:
       return self.name
     self.other_names.sort()
-    return "%s (aka %s)" % (self.name, ", ".join(self.other_names))
+    return "{0!s} (aka {1!s})".format(self.name, ", ".join(self.other_names))
 
   def IsUsed(self):
     return self.self_ticks > 0 or self.callee_ticks is not None
@@ -175,15 +175,15 @@ class Code(object):
       total_count += count
       count = 100.0 * count / self.self_ticks
       if count >= 0.01:
-        print "%15.2f %x: %s" % (count, lines[i][0], lines[i][1])
+        print "{0:15.2f} {1:x}: {2!s}".format(count, lines[i][0], lines[i][1])
       else:
-        print "%s %x: %s" % (" " * 15, lines[i][0], lines[i][1])
+        print "{0!s} {1:x}: {2!s}".format(" " * 15, lines[i][0], lines[i][1])
     print
     assert total_count == self.self_ticks, \
-        "Lost ticks (%d != %d) in %s" % (total_count, self.self_ticks, self)
+        "Lost ticks ({0:d} != {1:d}) in {2!s}".format(total_count, self.self_ticks, self)
 
   def __str__(self):
-    return "%s [0x%x, 0x%x) size: %d origin: %s" % (
+    return "{0!s} [0x{1:x}, 0x{2:x}) size: {3:d} origin: {4!s}".format(
       self.name,
       self.start_address,
       self.end_address,
@@ -260,7 +260,7 @@ class CodeMap(object):
     while page_id < limit_id:
       if max_pages >= 0 and pages > max_pages:
         print >>sys.stderr, \
-            "Warning: page limit (%d) reached for %s [%s]" % (
+            "Warning: page limit ({0:d}) reached for {1!s} [{2!s}]".format(
             max_pages, code.name, code.origin)
         break
       if page_id in self.pages:
@@ -372,7 +372,7 @@ class LogReader(object):
     self.arch = self.log[:self.log.find("\0")]
     self.log_pos += len(self.arch) + 1
     assert self.arch in LogReader._ARCH_TO_POINTER_TYPE_MAP, \
-        "Unsupported architecture %s" % self.arch
+        "Unsupported architecture {0!s}".format(self.arch)
     pointer_type = LogReader._ARCH_TO_POINTER_TYPE_MAP[self.arch]
 
     self.code_create_struct = LogReader._DefineStruct([
@@ -440,10 +440,10 @@ class LogReader(object):
           continue
         code = self.code_map.Find(old_start_address)
         if not code:
-          print >>sys.stderr, "Warning: Not found %x" % old_start_address
+          print >>sys.stderr, "Warning: Not found {0:x}".format(old_start_address)
           continue
         assert code.start_address == old_start_address, \
-            "Inexact move address %x for %s" % (old_start_address, code)
+            "Inexact move address {0:x} for {1!s}".format(old_start_address, code)
         self.code_map.Remove(code)
         size = code.end_address - code.start_address
         code.start_address = new_start_address
@@ -457,10 +457,10 @@ class LogReader(object):
         old_start_address = event.address
         code = self.code_map.Find(old_start_address)
         if not code:
-          print >>sys.stderr, "Warning: Not found %x" % old_start_address
+          print >>sys.stderr, "Warning: Not found {0:x}".format(old_start_address)
           continue
         assert code.start_address == old_start_address, \
-            "Inexact delete address %x for %s" % (old_start_address, code)
+            "Inexact delete address {0:x} for {1!s}".format(old_start_address, code)
         self.code_map.Remove(code)
         continue
 
@@ -475,7 +475,7 @@ class LogReader(object):
               self.snapshot_pos_to_name[snapshot_pos]
         continue
 
-      assert False, "Unknown tag %s" % tag
+      assert False, "Unknown tag {0!s}".format(tag)
 
   def Dispose(self):
     self.log.close()
@@ -491,7 +491,7 @@ class LogReader(object):
   def _HandleCodeConflict(old_code, new_code):
     assert (old_code.start_address == new_code.start_address and
             old_code.end_address == new_code.end_address), \
-        "Conficting code log entries %s and %s" % (old_code, new_code)
+        "Conficting code log entries {0!s} and {1!s}".format(old_code, new_code)
     if old_code.name == new_code.name:
       return
     # Code object may be shared by a few functions. Collect the full
@@ -513,7 +513,7 @@ class Descriptor(object):
       _fields_ = Descriptor.CtypesFields(fields)
 
       def __str__(self):
-        return ", ".join("%s: %s" % (field, self.__getattribute__(field))
+        return ", ".join("{0!s}: {1!s}".format(field, self.__getattribute__(field))
                          for field, _ in TraceItem._fields_)
 
     self.ctype = TraceItem
@@ -715,7 +715,7 @@ class LibraryRepo(object):
   def HasDynamicSymbols(self, filename):
     if filename.endswith(".ko"): return False
     process = subprocess.Popen(
-      "%s -h %s" % (OBJDUMP_BIN, filename),
+      "{0!s} -h {1!s}".format(OBJDUMP_BIN, filename),
       shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     pipe = process.stdout
     try:
@@ -724,7 +724,7 @@ class LibraryRepo(object):
         if match and match.group(1) == 'dynsym': return True
     finally:
       pipe.close()
-    assert process.wait() == 0, "Failed to objdump -h %s" % filename
+    assert process.wait() == 0, "Failed to objdump -h {0!s}".format(filename)
     return False
 
 
@@ -752,7 +752,7 @@ class LibraryRepo(object):
     else:
       dynamic_symbols = ""
     process = subprocess.Popen(
-      "%s -h -t %s -C %s" % (OBJDUMP_BIN, dynamic_symbols, mmap_info.filename),
+      "{0!s} -h -t {1!s} -C {2!s}".format(OBJDUMP_BIN, dynamic_symbols, mmap_info.filename),
       shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     pipe = process.stdout
     after_section = None
@@ -794,7 +794,7 @@ class LibraryRepo(object):
                               origin, origin_offset))
     finally:
       pipe.close()
-    assert process.wait() == 0, "Failed to objdump %s" % mmap_info.filename
+    assert process.wait() == 0, "Failed to objdump {0!s}".format(mmap_info.filename)
 
   def Tick(self, pc):
     for i, mmap_info in enumerate(self.infos):
@@ -808,14 +808,14 @@ class LibraryRepo(object):
     name = mmap_info.filename
     index = 1
     while name in self.names:
-      name = "%s-%d" % (mmap_info.filename, index)
+      name = "{0!s}-{1:d}".format(mmap_info.filename, index)
       index += 1
     self.names.add(name)
     return name
 
   def _LoadKernelSymbols(self, code_map):
     if not os.path.exists(KERNEL_ALLSYMS_FILE):
-      print >>sys.stderr, "Warning: %s not found" % KERNEL_ALLSYMS_FILE
+      print >>sys.stderr, "Warning: {0!s} not found".format(KERNEL_ALLSYMS_FILE)
       return False
     kallsyms = open(KERNEL_ALLSYMS_FILE, "r")
     code = None
@@ -838,7 +838,7 @@ def PrintReport(code_map, library_repo, arch, ticks, options):
   used_code.sort(key=lambda x: x.self_ticks, reverse=True)
   for i, code in enumerate(used_code):
     code_ticks = code.self_ticks
-    print "%10d %5.1f%% %s [%s]" % (code_ticks, 100. * code_ticks / ticks,
+    print "{0:10d} {1:5.1f}% {2!s} [{3!s}]".format(code_ticks, 100. * code_ticks / ticks,
                                     code.FullName(), code.origin)
     if options.disasm_all or i < options.disasm_top:
       code.PrintAnnotated(arch, options)
@@ -848,7 +848,7 @@ def PrintReport(code_map, library_repo, arch, ticks, options):
   mmap_infos.sort(key=lambda m: m.ticks, reverse=True)
   for mmap_info in mmap_infos:
     mmap_ticks = mmap_info.ticks
-    print "%10d %5.1f%% %s" % (mmap_ticks, 100. * mmap_ticks / ticks,
+    print "{0:10d} {1:5.1f}% {2!s}".format(mmap_ticks, 100. * mmap_ticks / ticks,
                                mmap_info.unique_name)
 
 
@@ -857,10 +857,10 @@ def PrintDot(code_map, options):
   for code in code_map.UsedCode():
     if code.self_ticks < 10:
       continue
-    print "n%d [shape=box,label=\"%s\"];" % (code.id, code.name)
+    print "n{0:d} [shape=box,label=\"{1!s}\"];".format(code.id, code.name)
     if code.callee_ticks:
       for callee, ticks in code.callee_ticks.iteritems():
-        print "n%d -> n%d [label=\"%d\"];" % (code.id, callee.id, ticks)
+        print "n{0:d} -> n{1:d} [label=\"{2:d}\"];".format(code.id, callee.id, ticks)
   print "}"
 
 
@@ -914,12 +914,12 @@ if __name__ == "__main__":
 
   if not options.quiet:
     if options.snapshot:
-      print "V8 logs: %s, %s, %s.ll" % (options.snapshot_log,
+      print "V8 logs: {0!s}, {1!s}, {2!s}.ll".format(options.snapshot_log,
                                         options.log,
                                         options.log)
     else:
-      print "V8 log: %s, %s.ll (no snapshot)" % (options.log, options.log)
-    print "Perf trace file: %s" % options.trace
+      print "V8 log: {0!s}, {1!s}.ll (no snapshot)".format(options.log, options.log)
+    print "Perf trace file: {0!s}".format(options.trace)
 
   V8_GC_FAKE_MMAP = options.gc_fake_mmap
   HOST_ROOT = options.host_root
@@ -927,7 +927,7 @@ if __name__ == "__main__":
     disasm.OBJDUMP_BIN = options.objdump
     OBJDUMP_BIN = options.objdump
   else:
-    print "Cannot find %s, falling back to default objdump" % options.objdump
+    print "Cannot find {0!s}, falling back to default objdump".format(options.objdump)
 
   # Stats.
   events = 0
@@ -952,7 +952,7 @@ if __name__ == "__main__":
                          code_map=code_map,
                          snapshot_pos_to_name=snapshot_name_map)
   if not options.quiet:
-    print "Generated code architecture: %s" % log_reader.arch
+    print "Generated code architecture: {0!s}".format(log_reader.arch)
     print
     sys.stdout.flush()
 
@@ -1006,13 +1006,12 @@ if __name__ == "__main__":
 
     if not options.quiet:
       def PrintTicks(number, total, description):
-        print("%10d %5.1f%% ticks in %s" %
-              (number, 100.0*number/total, description))
+        print("{0:10d} {1:5.1f}% ticks in {2!s}".format(number, 100.0*number/total, description))
       print
       print "Stats:"
-      print "%10d total trace events" % events
-      print "%10d total ticks" % ticks
-      print "%10d ticks not in symbols" % missed_ticks
+      print "{0:10d} total trace events".format(events)
+      print "{0:10d} total ticks".format(ticks)
+      print "{0:10d} ticks not in symbols".format(missed_ticks)
       unaccounted = "unaccounted ticks"
       if really_missed_ticks > 0:
         unaccounted += " (probably in the kernel, try --kernel)"
@@ -1020,10 +1019,10 @@ if __name__ == "__main__":
       PrintTicks(optimized_ticks, ticks, "ticks in optimized code")
       PrintTicks(generated_ticks, ticks, "ticks in other lazily compiled code")
       PrintTicks(v8_internal_ticks, ticks, "ticks in v8::internal::*")
-      print "%10d total symbols" % len([c for c in code_map.AllCode()])
-      print "%10d used symbols" % len([c for c in code_map.UsedCode()])
-      print "%9.2fs library processing time" % mmap_time
-      print "%9.2fs tick processing time" % sample_time
+      print "{0:10d} total symbols".format(len([c for c in code_map.AllCode()]))
+      print "{0:10d} used symbols".format(len([c for c in code_map.UsedCode()]))
+      print "{0:9.2f}s library processing time".format(mmap_time)
+      print "{0:9.2f}s tick processing time".format(sample_time)
 
   log_reader.Dispose()
   trace_reader.Dispose()

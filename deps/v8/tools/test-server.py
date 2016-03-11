@@ -38,7 +38,7 @@ ROOT = os.path.abspath(os.path.dirname(sys.argv[0]))
 
 
 def _PrintUsage():
-  print("""Usage: python %s COMMAND
+  print("""Usage: python {0!s} COMMAND
 
 Where COMMAND can be any of:
   start     Starts the server. Forks to the background.
@@ -48,7 +48,7 @@ Where COMMAND can be any of:
   update    Alias for "setup".
   trust <keyfile>  Adds the given public key to the list of trusted keys.
   help      Displays this help text.
-  """ % sys.argv[0])
+  """.format(sys.argv[0]))
 
 
 def _IsDaemonRunning():
@@ -58,7 +58,7 @@ def _IsDaemonRunning():
 def _Cmd(cmd):
   code = subprocess.call(cmd, shell=True)
   if code != 0:
-    print("Command '%s' returned error code %d" % (cmd, code))
+    print("Command '{0!s}' returned error code {1:d}".format(cmd, code))
     sys.exit(code)
 
 
@@ -95,14 +95,14 @@ def Update():
   # Make sure we have a key pair for signing binaries.
   privkeyfile = os.path.expanduser("~/.ssh/v8_dtest")
   if not os.path.exists(privkeyfile):
-    _Cmd("ssh-keygen -t rsa -f %s -N '' -q" % privkeyfile)
-  fingerprint = subprocess.check_output("ssh-keygen -lf %s" % privkeyfile,
+    _Cmd("ssh-keygen -t rsa -f {0!s} -N '' -q".format(privkeyfile))
+  fingerprint = subprocess.check_output("ssh-keygen -lf {0!s}".format(privkeyfile),
                                         shell=True)
   fingerprint = fingerprint.split(" ")[1].replace(":", "")[:16]
-  pubkeyfile = os.path.join(trusted_dir, "%s.pem" % fingerprint)
+  pubkeyfile = os.path.join(trusted_dir, "{0!s}.pem".format(fingerprint))
   if (not os.path.exists(pubkeyfile) or
       os.path.getmtime(pubkeyfile) < os.path.getmtime(privkeyfile)):
-    _Cmd("openssl rsa -in %s -out %s -pubout" % (privkeyfile, pubkeyfile))
+    _Cmd("openssl rsa -in {0!s} -out {1!s} -pubout".format(privkeyfile, pubkeyfile))
     with open(pubkeyfile, "a") as f:
       f.write(fingerprint + "\n")
     datafile = os.path.join(data_dir, "mypubkey")
@@ -112,24 +112,24 @@ def Update():
   # Check out or update the server implementation in the current directory.
   testrunner_dir = os.path.join(ROOT, "testrunner")
   if os.path.exists(os.path.join(testrunner_dir, "server/daemon.py")):
-    _Cmd("cd %s; svn up" % testrunner_dir)
+    _Cmd("cd {0!s}; svn up".format(testrunner_dir))
   else:
     path = ("http://v8.googlecode.com/svn/branches/bleeding_edge/"
             "tools/testrunner")
-    _Cmd("svn checkout --force %s %s" % (path, testrunner_dir))
+    _Cmd("svn checkout --force {0!s} {1!s}".format(path, testrunner_dir))
 
   # Update this very script.
   path = ("http://v8.googlecode.com/svn/branches/bleeding_edge/"
           "tools/test-server.py")
   scriptname = os.path.abspath(sys.argv[0])
-  _Cmd("svn cat %s > %s" % (path, scriptname))
+  _Cmd("svn cat {0!s} > {1!s}".format(path, scriptname))
 
   # Check out or update V8.
   v8_dir = os.path.join(ROOT, "v8")
   if os.path.exists(v8_dir):
-    _Cmd("cd %s; git fetch" % v8_dir)
+    _Cmd("cd {0!s}; git fetch".format(v8_dir))
   else:
-    _Cmd("git clone git://github.com/v8/v8.git %s" % v8_dir)
+    _Cmd("git clone git://github.com/v8/v8.git {0!s}".format(v8_dir))
 
   print("Finished.")
 
@@ -203,7 +203,7 @@ if __name__ == "__main__":
       else:
         daemon = main.Server(PIDFILE, ROOT)
         response = daemon.CopyToTrusted(filename)
-      print("Added certificate %s to trusted certificates." % response)
+      print("Added certificate {0!s} to trusted certificates.".format(response))
     else:
       print("Unknown command")
       _PrintUsage()

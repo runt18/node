@@ -36,7 +36,7 @@ def try_unlink(path):
     if e.errno != errno.ENOENT: raise
 
 def try_symlink(source_path, link_path):
-  print 'symlinking %s -> %s' % (source_path, link_path)
+  print 'symlinking {0!s} -> {1!s}'.format(source_path, link_path)
   try_unlink(link_path)
   os.symlink(source_path, link_path)
 
@@ -66,14 +66,14 @@ def mkpaths(path, dst):
 
 def try_copy(path, dst):
   source_path, target_path = mkpaths(path, dst)
-  print 'installing %s' % target_path
+  print 'installing {0!s}'.format(target_path)
   try_mkdir_r(os.path.dirname(target_path))
   try_unlink(target_path) # prevent ETXTBSY errors
   return shutil.copy2(source_path, target_path)
 
 def try_remove(path, dst):
   source_path, target_path = mkpaths(path, dst)
-  print 'removing %s' % target_path
+  print 'removing {0!s}'.format(target_path)
   try_unlink(target_path)
   try_rmdir_r(os.path.dirname(target_path))
 
@@ -81,7 +81,7 @@ def install(paths, dst): map(lambda path: try_copy(path, dst), paths)
 def uninstall(paths, dst): map(lambda path: try_remove(path, dst), paths)
 
 def update_shebang(path, shebang):
-  print 'updating shebang of %s to %s' % (path, shebang)
+  print 'updating shebang of {0!s} to {1!s}'.format(path, shebang)
   s = open(path, 'r').read()
   s = re.sub(r'#!.*\n', '#!' + shebang + '\n', s)
   open(path, 'w').write(s)
@@ -212,7 +212,7 @@ def run(args):
     if cmd == 'install': return files(install)
     if cmd == 'uninstall': return files(uninstall)
 
-  raise RuntimeError('Bad command: %s\n' % cmd)
+  raise RuntimeError('Bad command: {0!s}\n'.format(cmd))
 
 if __name__ == '__main__':
   run(sys.argv[:])

@@ -36,7 +36,7 @@ def apply_gyp_environment(file_path=None):
     val = file_data.get(var)
     if val:
       if var in os.environ:
-        print 'INFO: Environment value for "%s" overrides value in %s.' % (
+        print 'INFO: Environment value for "{0!s}" overrides value in {1!s}.'.format(
             var, os.path.abspath(file_path)
         )
       else:

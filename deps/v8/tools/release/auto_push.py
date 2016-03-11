@@ -60,10 +60,10 @@ class LastReleaseBailout(Step):
   def RunStep(self):
     last_release = self.GetLatestReleaseBase()
     commits = self.GitLog(
-        format="%H", git_hash="%s..%s" % (last_release, self["candidate"]))
+        format="%H", git_hash="{0!s}..{1!s}".format(last_release, self["candidate"]))
 
     if not commits:
-      print "Already pushed current candidate %s" % self["candidate"]
+      print "Already pushed current candidate {0!s}".format(self["candidate"])
       return True
 
 
@@ -71,7 +71,7 @@ class CreateRelease(Step):
   MESSAGE = "Creating release if specified."
 
   def RunStep(self):
-    print "Creating release for %s." % self["candidate"]
+    print "Creating release for {0!s}.".format(self["candidate"])
 
     args = [
       "--author", self._options.author,

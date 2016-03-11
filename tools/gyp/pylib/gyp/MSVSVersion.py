@@ -361,10 +361,10 @@ def _DetectVisualStudioVersions(versions_to_check, force_express):
     # Old method of searching for which VS version is installed
     # We don't use the 2010-encouraged-way because we also want to get the
     # path to the binaries, which it doesn't offer.
-    keys = [r'HKLM\Software\Microsoft\VisualStudio\%s' % version,
-            r'HKLM\Software\Wow6432Node\Microsoft\VisualStudio\%s' % version,
-            r'HKLM\Software\Microsoft\VCExpress\%s' % version,
-            r'HKLM\Software\Wow6432Node\Microsoft\VCExpress\%s' % version]
+    keys = [r'HKLM\Software\Microsoft\VisualStudio\{0!s}'.format(version),
+            r'HKLM\Software\Wow6432Node\Microsoft\VisualStudio\{0!s}'.format(version),
+            r'HKLM\Software\Microsoft\VCExpress\{0!s}'.format(version),
+            r'HKLM\Software\Wow6432Node\Microsoft\VCExpress\{0!s}'.format(version)]
     for index in range(len(keys)):
       path = _RegistryGetValue(keys[index], 'InstallDir')
       if not path:

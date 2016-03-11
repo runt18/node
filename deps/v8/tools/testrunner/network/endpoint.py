@@ -114,10 +114,10 @@ def Execute(workspace, ctx, tests, sock, server):
     runner.Run(server.jobs)
   except IOError, e:
     if e.errno == 2:
-      message = ("File not found: %s, maybe you forgot to 'git add' it?" %
-                 e.filename)
+      message = ("File not found: {0!s}, maybe you forgot to 'git add' it?".format(
+                 e.filename))
     else:
-      message = "%s" % e
+      message = "{0!s}".format(e)
     compression.Send([[-1, message]], sock)
   progress_indicator.HasRun(None, None)  # Sentinel to signal the end.
   progress_indicator.sender_lock.acquire()  # Released when sending is done.

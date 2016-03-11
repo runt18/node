@@ -118,7 +118,7 @@ class PromiseAplusTestSuite(testsuite.TestSuite):
       archive = tarfile.open(archive, 'r:gz')
       if sys.platform in ('win32', 'cygwin'):
         # Magic incantation to allow longer path names on Windows.
-        archive.extractall(u'\\\\?\\%s' % self.root)
+        archive.extractall(u'\\\\?\\{0!s}'.format(self.root))
       else:
         archive.extractall(self.root)
       shutil.move(os.path.join(self.root, TEST_ARCHIVE_TOP), directory)

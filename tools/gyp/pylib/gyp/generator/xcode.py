@@ -45,7 +45,7 @@ generator_default_variables = {
   # and be constant within the context of a project, corresponding to a single
   # input file.  Some build environments may allow their intermediate directory
   # to be shared on a wider scale, but this is not guaranteed.
-  'INTERMEDIATE_DIR': '$(%s)' % _intermediate_var,
+  'INTERMEDIATE_DIR': '$({0!s})'.format(_intermediate_var),
   'OS': 'mac',
   'PRODUCT_DIR': '$(BUILT_PRODUCTS_DIR)',
   'LIB_DIR': '$(BUILT_PRODUCTS_DIR)',
@@ -54,7 +54,7 @@ generator_default_variables = {
   'RULE_INPUT_NAME': '$(INPUT_FILE_NAME)',
   'RULE_INPUT_PATH': '$(INPUT_FILE_PATH)',
   'RULE_INPUT_DIRNAME': '$(INPUT_FILE_DIRNAME)',
-  'SHARED_INTERMEDIATE_DIR': '$(%s)' % _shared_intermediate_var,
+  'SHARED_INTERMEDIATE_DIR': '$({0!s})'.format(_shared_intermediate_var),
   'CONFIGURATION_NAME': '$(CONFIGURATION)',
 }
 
@@ -151,7 +151,7 @@ class XcodeProject(object):
       xccl = CreateXCConfigurationList(configurations)
       self.project.SetProperty('buildConfigurationList', xccl)
     except:
-      sys.stderr.write("Problem with gyp file %s\n" % self.gyp_path)
+      sys.stderr.write("Problem with gyp file {0!s}\n".format(self.gyp_path))
       raise
 
     # The need for this setting is explained above where _intermediate_var is
@@ -262,14 +262,13 @@ class XcodeProject(object):
         command = target['run_as']
         script = ''
         if command.get('working_directory'):
-          script = script + 'cd "%s"\n' % \
+          script = script + 'cd "{0!s}"\n'.format( \
                    gyp.xcodeproj_file.ConvertVariablesToShellSyntax(
-                       command.get('working_directory'))
+                       command.get('working_directory')))
 
         if command.get('environment'):
           script = script + "\n".join(
-            ['export %s="%s"' %
-             (key, gyp.xcodeproj_file.ConvertVariablesToShellSyntax(val))
+            ['export {0!s}="{1!s}"'.format(key, gyp.xcodeproj_file.ConvertVariablesToShellSyntax(val))
              for (key, val) in command.get('environment').iteritems()]) + "\n"
 
         # Some test end up using sockets, files on disk, etc. and can get
@@ -289,9 +288,9 @@ sys.exit(subprocess.call(sys.argv[1:]))" """
         # If we were unable to exec for some reason, we want to exit
         # with an error, and fixup variable references to be shell
         # syntax instead of xcode syntax.
-        script = script + 'exec ' + command_prefix + '%s\nexit 1\n' % \
+        script = script + 'exec ' + command_prefix + '{0!s}\nexit 1\n'.format( \
                  gyp.xcodeproj_file.ConvertVariablesToShellSyntax(
-                     gyp.common.EncodePOSIXShellList(command.get('action')))
+                     gyp.common.EncodePOSIXShellList(command.get('action'))))
 
         ssbp = gyp.xcodeproj_file.PBXShellScriptBuildPhase({
               'shellScript':      script,
@@ -389,7 +388,7 @@ sys.exit(subprocess.call(sys.argv[1:]))" """
           # that builds them.
           if len(all_run_tests) > 0:
             run_all_target = gyp.xcodeproj_file.PBXAggregateTarget({
-                  'name':        'Run %s Tests' % tgt_name,
+                  'name':        'Run {0!s} Tests'.format(tgt_name),
                   'productName': tgt_name,
                 },
                 parent=self.project)
@@ -520,7 +519,7 @@ def AddResourceToTarget(resource, pbxp, xct):
 def AddHeaderToTarget(header, pbxp, xct, is_public):
   # TODO(mark): Combine with AddSourceToTarget above?  Or just inline this call
   # where it's used.
-  settings = '{ATTRIBUTES = (%s, ); }' % ('Private', 'Public')[is_public]
+  settings = '{{ATTRIBUTES = ({0!s}, ); }}'.format(('Private', 'Public')[is_public])
   xct.HeadersPhase().AddFile(header, settings)
 
 
@@ -574,7 +573,7 @@ def PerformBuild(data, configurations, params):
   for config in configurations:
     arguments = ['xcodebuild', '-project', xcodeproj_path]
     arguments += ['-configuration', config]
-    print "Building [%s]: %s" % (config, arguments)
+    print "Building [{0!s}]: {1!s}".format(config, arguments)
     subprocess.check_call(arguments)
 
 
@@ -625,8 +624,8 @@ def GenerateOutput(target_list, target_dicts, data, params):
     spec = target_dicts[qualified_target]
     if spec['toolset'] != 'target':
       raise Exception(
-          'Multiple toolsets not supported in xcode build (target %s)' %
-          qualified_target)
+          'Multiple toolsets not supported in xcode build (target {0!s})'.format(
+          qualified_target))
     configuration_names = [spec['default_configuration']]
     for configuration_name in sorted(spec['configurations'].keys()):
       if configuration_name not in configuration_names:
@@ -701,11 +700,11 @@ def GenerateOutput(target_list, target_dicts, data, params):
     else:
       xctarget_type = gyp.xcodeproj_file.PBXAggregateTarget
       assert not is_bundle, (
-          'mac_bundle targets cannot have type none (target "%s")' %
-          target_name)
+          'mac_bundle targets cannot have type none (target "{0!s}")'.format(
+          target_name))
       assert not is_xctest, (
-          'mac_xctest_bundle targets cannot have type none (target "%s")' %
-          target_name)
+          'mac_xctest_bundle targets cannot have type none (target "{0!s}")'.format(
+          target_name))
 
     target_product_name = spec.get('product_name')
     if target_product_name is not None:
@@ -957,8 +956,8 @@ def GenerateOutput(target_list, target_dicts, data, params):
       if len(concrete_outputs_all) > 0:
         # TODO(mark): There's a possibilty for collision here.  Consider
         # target "t" rule "A_r" and target "t_A" rule "r".
-        makefile_name = '%s.make' % re.sub(
-            '[^a-zA-Z0-9_]', '_' , '%s_%s' % (target_name, rule['rule_name']))
+        makefile_name = '{0!s}.make'.format(re.sub(
+            '[^a-zA-Z0-9_]', '_' , '{0!s}_{1!s}'.format(target_name, rule['rule_name'])))
         makefile_path = os.path.join(xcode_projects[build_file].path,
                                      makefile_name)
         # TODO(mark): try/close?  Write to a temporary file and swap it only
@@ -983,7 +982,7 @@ def GenerateOutput(target_list, target_dicts, data, params):
             eol = ''
           else:
             eol = ' \\'
-          makefile.write('    %s%s\n' % (concrete_output, eol))
+          makefile.write('    {0!s}{1!s}\n'.format(concrete_output, eol))
 
         for (rule_source, concrete_outputs, message, action) in \
             zip(rule['rule_sources'], concrete_outputs_by_rule_source,
@@ -1000,7 +999,7 @@ def GenerateOutput(target_list, target_dicts, data, params):
               bol = ''
             else:
               bol = '    '
-            makefile.write('%s%s \\\n' % (bol, concrete_output))
+            makefile.write('{0!s}{1!s} \\\n'.format(bol, concrete_output))
 
             concrete_output_dir = posixpath.dirname(concrete_output)
             if (concrete_output_dir and
@@ -1019,20 +1018,20 @@ def GenerateOutput(target_list, target_dicts, data, params):
               eol = ''
             else:
               eol = ' \\'
-            makefile.write('    %s%s\n' % (prerequisite, eol))
+            makefile.write('    {0!s}{1!s}\n'.format(prerequisite, eol))
 
           # Make sure that output directories exist before executing the rule
           # action.
           if len(concrete_output_dirs) > 0:
-            makefile.write('\t@mkdir -p "%s"\n' %
-                           '" "'.join(concrete_output_dirs))
+            makefile.write('\t@mkdir -p "{0!s}"\n'.format(
+                           '" "'.join(concrete_output_dirs)))
 
           # The rule message and action have already had the necessary variable
           # substitutions performed.
           if message:
             # Mark it with note: so Xcode picks it up in build output.
-            makefile.write('\t@echo note: %s\n' % message)
-          makefile.write('\t%s\n' % action)
+            makefile.write('\t@echo note: {0!s}\n'.format(message))
+          makefile.write('\t{0!s}\n'.format(action))
 
         makefile.close()
 
@@ -1060,12 +1059,12 @@ def GenerateOutput(target_list, target_dicts, data, params):
         # scheduling/other tasks, and randomly failing builds are no good.
         script = \
 """JOB_COUNT="$(/usr/sbin/sysctl -n hw.ncpu)"
-if [ "${JOB_COUNT}" -gt 4 ]; then
+if [ "${{JOB_COUNT}}" -gt 4 ]; then
   JOB_COUNT=4
 fi
-exec xcrun make -f "${PROJECT_FILE_PATH}/%s" -j "${JOB_COUNT}"
+exec xcrun make -f "${{PROJECT_FILE_PATH}}/{0!s}" -j "${{JOB_COUNT}}"
 exit 1
-""" % makefile_name
+""".format(makefile_name)
         ssbp = gyp.xcodeproj_file.PBXShellScriptBuildPhase({
               'name': 'Rule "' + rule['rule_name'] + '"',
               'shellScript': script,

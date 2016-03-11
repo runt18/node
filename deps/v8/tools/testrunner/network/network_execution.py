@@ -66,7 +66,7 @@ class NetworkedRunner(execution.Runner):
     self.peers = peers
     self.pubkey_fingerprint = None  # Fetched later.
     self.base_rev = subprocess.check_output(
-        "cd %s; git log -1 --format=%%H --grep=git-svn-id" % workspace,
+        "cd {0!s}; git log -1 --format=%H --grep=git-svn-id".format(workspace),
         shell=True).strip()
     self.base_svn_rev = subprocess.check_output(
         "cd %s; git log -1 %s"          # Get commit description.
@@ -75,7 +75,7 @@ class NetworkedRunner(execution.Runner):
         " | sed -e 's/.*@//'" %         # Strip away "repository@".
         (workspace, self.base_rev), shell=True).strip()
     self.patch = subprocess.check_output(
-        "cd %s; git diff %s" % (workspace, self.base_rev), shell=True)
+        "cd {0!s}; git diff {1!s}".format(workspace, self.base_rev), shell=True)
     self.binaries = {}
     self.initialization_lock = threading.Lock()
     self.initialization_lock.acquire()  # Released when init is done.
@@ -118,7 +118,7 @@ class NetworkedRunner(execution.Runner):
         path = os.path.join(self.context.shell_dir, shell)
         # Check if this is a shared library build.
         try:
-          ldd = subprocess.check_output("ldd %s | grep libv8\\.so" % (path),
+          ldd = subprocess.check_output("ldd {0!s} | grep libv8\\.so".format((path)),
                                         shell=True)
           ldd = ldd.strip().split(" ")
           assert ldd[0] == "libv8.so"
@@ -188,14 +188,14 @@ class NetworkedRunner(execution.Runner):
             if test_id < 0:
               # The peer is reporting an error.
               with self.lock:
-                print("\nPeer %s reports error: %s" % (peer.address, data[1]))
+                print("\nPeer {0!s} reports error: {1!s}".format(peer.address, data[1]))
               continue
             test = test_map.pop(test_id)
             test.MergeResult(data)
             try:
               self.perfdata.UpdatePerfData(test)
             except Exception, e:
-              print("UpdatePerfData exception: %s" % e)
+              print("UpdatePerfData exception: {0!s}".format(e))
               pass  # Just keep working.
             with self.lock:
               perf_key = self.perfdata.GetKey(test)
@@ -219,7 +219,7 @@ class NetworkedRunner(execution.Runner):
         sock.close()
         raise
       except Exception, e:
-        print("Got exception: %s" % e)
+        print("Got exception: {0!s}".format(e))
         pass  # Fall back to local execution.
     else:
       compression.Send([constants.UNRESPONSIVE_PEER, peer.address],
@@ -227,7 +227,7 @@ class NetworkedRunner(execution.Runner):
     sock.close()
     if len(test_map) > 0:
       # Some tests have not received any results. Run them locally.
-      print("\nNo results for %d tests, running them locally." % len(test_map))
+      print("\nNo results for {0:d} tests, running them locally.".format(len(test_map)))
       self._EnqueueLocally(test_map)
 
   def _EnqueueLocally(self, test_map):

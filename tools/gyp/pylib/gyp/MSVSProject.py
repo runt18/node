@@ -178,7 +178,7 @@ class Writer(object):
     # Find the file node with the right relative path
     parent = self.files_dict.get(path)
     if not parent:
-      raise ValueError('AddFileConfig: file "%s" not in project.' % path)
+      raise ValueError('AddFileConfig: file "{0!s}" not in project.'.format(path))
 
     # Add the config to the file node
     spec = self._GetSpecForConfiguration('FileConfiguration', config, attrs,

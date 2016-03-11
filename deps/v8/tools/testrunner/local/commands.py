@@ -70,7 +70,7 @@ def RunProcess(verbose, timeout, args, **rest):
       **rest
     )
   except Exception as e:
-    sys.stderr.write("Error executing: %s\n" % popen_args)
+    sys.stderr.write("Error executing: {0!s}\n".format(popen_args))
     raise e
 
   if (utils.IsWindows() and prev_error_mode != SEM_INVALID_VALUE):
@@ -81,24 +81,24 @@ def RunProcess(verbose, timeout, args, **rest):
     try:
       if utils.IsWindows():
         if verbose:
-          print "Attempting to kill process %d" % process.pid
+          print "Attempting to kill process {0:d}".format(process.pid)
           sys.stdout.flush()
         tk = subprocess.Popen(
-            'taskkill /T /F /PID %d' % process.pid,
+            'taskkill /T /F /PID {0:d}'.format(process.pid),
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
         )
         stdout, stderr = tk.communicate()
         if verbose:
-          print "Taskkill results for %d" % process.pid
+          print "Taskkill results for {0:d}".format(process.pid)
           print stdout
           print stderr
-          print "Return code: %d" % tk.returncode
+          print "Return code: {0:d}".format(tk.returncode)
           sys.stdout.flush()
       else:
         process.kill()
     except OSError:
-      sys.stderr.write('Error: Process %s already ended.\n' % process.pid)
+      sys.stderr.write('Error: Process {0!s} already ended.\n'.format(process.pid))
 
   # Pseudo object to communicate with timer thread.
   timeout_result = [False]

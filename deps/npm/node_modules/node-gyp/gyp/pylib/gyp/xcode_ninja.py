@@ -36,7 +36,7 @@ def _WriteWorkspace(main_gyp, sources_gyp, params):
   for gyp_name in [main_gyp, sources_gyp]:
     name = os.path.splitext(os.path.basename(gyp_name))[0] + '.xcodeproj'
     name = xml.sax.saxutils.quoteattr("group:" + name)
-    output_string += '  <FileRef location = %s></FileRef>\n' % name
+    output_string += '  <FileRef location = {0!s}></FileRef>\n'.format(name)
   output_string += '</Workspace>\n'
 
   workspace_file = os.path.join(workspace_path, "contents.xcworkspacedata")
@@ -82,7 +82,7 @@ def _TargetFromSpec(old_spec, params):
   new_xcode_settings = {}
   if ninja_toplevel:
     new_xcode_settings['CONFIGURATION_BUILD_DIR'] = \
-        "%s/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)" % ninja_toplevel
+        "{0!s}/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)".format(ninja_toplevel)
 
   if 'configurations' in old_spec:
     for config in old_spec['configurations'].iterkeys():
@@ -105,18 +105,18 @@ def _TargetFromSpec(old_spec, params):
   if ninja_toplevel:
     ninja_target['actions'] = [
       {
-        'action_name': 'Compile and copy %s via ninja' % target_name,
+        'action_name': 'Compile and copy {0!s} via ninja'.format(target_name),
         'inputs': [],
         'outputs': [],
         'action': [
           'env',
-          'PATH=%s' % os.environ['PATH'],
+          'PATH={0!s}'.format(os.environ['PATH']),
           'ninja',
           '-C',
           new_xcode_settings['CONFIGURATION_BUILD_DIR'],
           target_name,
         ],
-        'message': 'Compile and copy %s via ninja' % target_name,
+        'message': 'Compile and copy {0!s} via ninja'.format(target_name),
       },
     ]
     if jobs > 0:
@@ -200,7 +200,7 @@ def CreateWrapper(target_list, target_dicts, data, params):
     if IsValidTargetForWrapper(target_extras, executable_target_pattern, spec):
       # Add to new_target_list.
       target_name = spec.get('target_name')
-      new_target_name = '%s:%s#target' % (main_gyp, target_name)
+      new_target_name = '{0!s}:{1!s}#target'.format(main_gyp, target_name)
       new_target_list.append(new_target_name)
 
       # Add to new_target_dicts.
@@ -249,7 +249,7 @@ def CreateWrapper(target_list, target_dicts, data, params):
   sources_gyp = \
       os.path.join(os.path.dirname(main_gyp), sources_target_name + ".gyp")
   fully_qualified_target_name = \
-      '%s:%s#target' % (sources_gyp, sources_target_name)
+      '{0!s}:{1!s}#target'.format(sources_gyp, sources_target_name)
 
   # Add to new_target_list, new_target_dicts and new_data.
   new_target_list.append(fully_qualified_target_name)

@@ -43,11 +43,11 @@ def _QuoteWin32CommandLineArgs(args):
     # are any.
     if arg.find('"') != -1:
       arg = '""'.join(arg.split('"'))
-      arg = '"%s"' % arg
+      arg = '"{0!s}"'.format(arg)
 
     # Otherwise, if there are any spaces, quote the whole arg.
     elif re.search(r'[ \t\n]', arg):
-      arg = '"%s"' % arg
+      arg = '"{0!s}"'.format(arg)
     new_args.append(arg)
   return new_args
 
@@ -92,7 +92,7 @@ class Writer(object):
     abs_command = _FindCommandInPath(command[0])
 
     if environment and isinstance(environment, dict):
-      env_list = ['%s="%s"' % (key, val)
+      env_list = ['{0!s}="{1!s}"'.format(key, val)
                   for (key,val) in environment.iteritems()]
       environment = ' '.join(env_list)
     else:

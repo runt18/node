@@ -46,7 +46,7 @@ class Preparation(Step):
 
     if(self["current_branch"] == self.Config("CANDIDATESBRANCH")
        or self["current_branch"] == self.Config("BRANCHNAME")):
-      print "Warning: Script started on branch %s" % self["current_branch"]
+      print "Warning: Script started on branch {0!s}".format(self["current_branch"])
 
     self.PrepareBranch()
     self.DeleteBranch(self.Config("CANDIDATESBRANCH"))
@@ -99,11 +99,11 @@ class IncrementVersion(Step):
     # Make sure patch level is 0 in a new push.
     self["new_patch"] = "0"
 
-    self["version"] = "%s.%s.%s" % (self["new_major"],
+    self["version"] = "{0!s}.{1!s}.{2!s}".format(self["new_major"],
                                     self["new_minor"],
                                     self["new_build"])
 
-    print ("Incremented version to %s" % self["version"])
+    print ("Incremented version to {0!s}".format(self["version"]))
 
 
 class DetectLastRelease(Step):
@@ -127,8 +127,7 @@ class PrepareChangeLog(Step):
     match = re.search(r"^Review URL: https://codereview\.chromium\.org/(\d+)$",
                       body, flags=re.M)
     if match:
-      cl_url = ("https://codereview.chromium.org/%s/description"
-                % match.group(1))
+      cl_url = ("https://codereview.chromium.org/{0!s}/description".format(match.group(1)))
       try:
         # Fetch from Rietveld but only retry once with one second delay since
         # there might be many revisions.
@@ -139,10 +138,10 @@ class PrepareChangeLog(Step):
 
   def RunStep(self):
     self["date"] = self.GetDate()
-    output = "%s: Version %s\n\n" % (self["date"], self["version"])
+    output = "{0!s}: Version {1!s}\n\n".format(self["date"], self["version"])
     TextToFile(output, self.Config("CHANGELOG_ENTRY_FILE"))
     commits = self.GitLog(format="%H",
-        git_hash="%s..%s" % (self["last_push_master"],
+        git_hash="{0!s}..{1!s}".format(self["last_push_master"],
                              self["push_hash"]))
 
     # Cache raw commit messages.
@@ -215,11 +214,11 @@ class SquashCommits(Step):
     text = FileToText(self.Config("CHANGELOG_ENTRY_FILE"))
 
     # Remove date and trailing white space.
-    text = re.sub(r"^%s: " % self["date"], "", text.rstrip())
+    text = re.sub(r"^{0!s}: ".format(self["date"]), "", text.rstrip())
 
     # Show the used master hash in the commit message.
     suffix = PUSH_MSG_GIT_SUFFIX % self["push_hash"]
-    text = MSub(r"^(Version \d+\.\d+\.\d+)$", "\\1%s" % suffix, text)
+    text = MSub(r"^(Version \d+\.\d+\.\d+)$", "\\1{0!s}".format(suffix), text)
 
     # Remove indentation and merge paragraphs into single long lines, keeping
     # empty lines between them.
@@ -285,7 +284,7 @@ class AddChangeLog(Step):
   def RunStep(self):
     changelog_entry = FileToText(self.Config("CHANGELOG_ENTRY_FILE"))
     old_change_log = FileToText(os.path.join(self.default_cwd, CHANGELOG_FILE))
-    new_change_log = "%s\n\n\n%s" % (changelog_entry, old_change_log)
+    new_change_log = "{0!s}\n\n\n{1!s}".format(changelog_entry, old_change_log)
     TextToFile(new_change_log, os.path.join(self.default_cwd, CHANGELOG_FILE))
     os.remove(self.Config("CHANGELOG_ENTRY_FILE"))
 

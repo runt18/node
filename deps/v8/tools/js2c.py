@@ -81,7 +81,7 @@ def Validate(lines):
     raise Error("With statements disallowed in natives.")
   invalid_error = INVALID_ERROR_MESSAGE_PATTERN.search(lines)
   if invalid_error:
-    raise Error("Unknown error message template '%s'" % invalid_error.group(1))
+    raise Error("Unknown error message template '{0!s}'".format(invalid_error.group(1)))
   if NEW_ERROR_PATTERN.search(lines):
     raise Error("Error constructed without message template.")
   # Pass lines through unchanged.
@@ -109,7 +109,7 @@ def ExpandMacroDefinition(lines, pos, name_pattern, macro, expander):
       # Remember to expand recursively in the arguments
       if arg_index[0] >= len(macro.args):
         lineno = lines.count(os.linesep, 0, start) + 1
-        raise Error('line %s: Too many arguments for macro "%s"' % (lineno, name_pattern.pattern))
+        raise Error('line {0!s}: Too many arguments for macro "{1!s}"'.format(lineno, name_pattern.pattern))
       replacement = expander(str.strip())
       mapping[macro.args[arg_index[0]]] = replacement
       arg_index[0] += 1
@@ -177,14 +177,14 @@ def ReadMacros(lines):
     if const_match:
       name = const_match.group(1)
       value = const_match.group(2).strip()
-      constants.append((re.compile("\\b%s\\b" % name), value))
+      constants.append((re.compile("\\b{0!s}\\b".format(name)), value))
     else:
       macro_match = MACRO_PATTERN.match(line)
       if macro_match:
         name = macro_match.group(1)
         args = [match.strip() for match in macro_match.group(2).split(',')]
         body = macro_match.group(3).strip()
-        macros.append((re.compile("\\b%s\\(" % name), TextMacro(args, body)))
+        macros.append((re.compile("\\b{0!s}\\(".format(name)), TextMacro(args, body)))
       else:
         python_match = PYTHON_MACRO_PATTERN.match(line)
         if python_match:
@@ -192,7 +192,7 @@ def ReadMacros(lines):
           args = [match.strip() for match in python_match.group(2).split(',')]
           body = python_match.group(3).strip()
           fun = eval("lambda " + ",".join(args) + ': ' + body)
-          macros.append((re.compile("\\b%s\\(" % name), PythonMacro(args, fun)))
+          macros.append((re.compile("\\b{0!s}\\(".format(name)), PythonMacro(args, fun)))
         else:
           raise Error("Illegal line: " + line)
   return (constants, macros)
@@ -206,10 +206,10 @@ def ReadMessageTemplates(lines):
   for line in lines.split('\n'):
     template_match = TEMPLATE_PATTERN.match(line)
     if template_match:
-      name = "k%s" % template_match.group(1)
+      name = "k{0!s}".format(template_match.group(1))
       value = index
       index = index + 1
-      templates.append((re.compile("\\b%s\\b" % name), value))
+      templates.append((re.compile("\\b{0!s}\\b".format(name)), value))
   return templates
 
 INLINE_MACRO_PATTERN = re.compile(r'macro\s+([a-zA-Z0-9_]+)\s*\(([^)]*)\)\s*\n')
@@ -226,12 +226,12 @@ def ExpandInlineMacros(lines):
     args = [match.strip() for match in macro_match.group(2).split(',')]
     end_macro_match = INLINE_MACRO_END_PATTERN.search(lines, macro_match.end());
     if end_macro_match is None:
-      raise Error("Macro %s unclosed" % name)
+      raise Error("Macro {0!s} unclosed".format(name))
     body = lines[macro_match.end():end_macro_match.start()]
 
     # remove macro definition
     lines = lines[:macro_match.start()] + lines[end_macro_match.end():]
-    name_pattern = re.compile("\\b%s\\(" % name)
+    name_pattern = re.compile("\\b{0!s}\\(".format(name))
     macro = TextMacro(args, body)
 
     # advance position to where the macro defintion was
@@ -253,7 +253,7 @@ def ExpandInlineConstants(lines):
       return lines
     name = const_match.group(1)
     replacement = const_match.group(2)
-    name_pattern = re.compile("\\b%s\\b" % name)
+    name_pattern = re.compile("\\b{0!s}\\b".format(name))
 
     # remove constant definition and replace
     lines = (lines[:const_match.start()] +
@@ -441,7 +441,7 @@ def PrepareSources(source_files, native_type, emit_js):
     try:
       lines = filters(contents)
     except Error as e:
-      raise Error("In file %s:\n%s" % (source, str(e)))
+      raise Error("In file {0!s}:\n{1!s}".format(source, str(e)))
 
     result.modules.append(lines)
 
@@ -478,7 +478,7 @@ def BuildMetadata(sources, source_bytes, native_type):
   get_script_source_cases = []
   offset = 0
   for i in xrange(len(sources.modules)):
-    native_name = "native %s.js" % sources.names[i]
+    native_name = "native {0!s}.js".format(sources.names[i])
     d = {
         "i": i,
         "id": sources.names[i],

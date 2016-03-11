@@ -31,7 +31,7 @@ def get_libuv_version():
         is_release = int(m.group(1))
         m = re.search(r"""^#define UV_VERSION_SUFFIX \"(\w*)\"$""", data, re.MULTILINE)
         suffix = m.group(1)
-        return '%d.%d.%d%s' % (major, minor, patch, '-%s' % suffix if not is_release else '')
+        return '{0:d}.{1:d}.{2:d}{3!s}'.format(major, minor, patch, '-{0!s}'.format(suffix) if not is_release else '')
     except Exception:
         return 'unknown'
 
@@ -133,7 +133,7 @@ html_theme = 'nature'
 html_title = 'libuv API documentation'
 
 # A shorter title for the navigation bar.  Default is the same as html_title.
-html_short_title = 'libuv %s API documentation' % version
+html_short_title = 'libuv {0!s} API documentation'.format(version)
 
 # The name of an image file (relative to this directory) to place at the top
 # of the sidebar.

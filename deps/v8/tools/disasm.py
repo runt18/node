@@ -58,7 +58,7 @@ def GetDisasmLines(filename, offset, size, arch, inplace, arch_flags=""):
   tmp_name = None
   if not inplace:
     # Create a temporary file containing a copy of the code.
-    assert arch in _ARCH_MAP, "Unsupported architecture '%s'" % arch
+    assert arch in _ARCH_MAP, "Unsupported architecture '{0!s}'".format(arch)
     arch_flags = arch_flags + " " +  _ARCH_MAP[arch]
     tmp_name = tempfile.mktemp(".v8code")
     command = "dd if=%s of=%s bs=1 count=%d skip=%d && " \
@@ -67,7 +67,7 @@ def GetDisasmLines(filename, offset, size, arch, inplace, arch_flags=""):
       OBJDUMP_BIN, ' '.join(_COMMON_DISASM_OPTIONS), arch_flags,
       tmp_name)
   else:
-    command = "%s %s %s --start-address=%d --stop-address=%d -d %s " % (
+    command = "{0!s} {1!s} {2!s} --start-address={3:d} --stop-address={4:d} -d {5!s} ".format(
       OBJDUMP_BIN, ' '.join(_COMMON_DISASM_OPTIONS), arch_flags,
       offset,
       offset + size,

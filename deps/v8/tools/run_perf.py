@@ -192,11 +192,9 @@ class Measurement(object):
       result = re.search(self.results_regexp, stdout, re.M).group(1)
       self.results.append(str(float(result)))
     except ValueError:
-      self.errors.append("Regexp \"%s\" returned a non-numeric for test %s."
-                         % (self.results_regexp, self.name))
+      self.errors.append("Regexp \"{0!s}\" returned a non-numeric for test {1!s}.".format(self.results_regexp, self.name))
     except:
-      self.errors.append("Regexp \"%s\" didn't match for test %s."
-                         % (self.results_regexp, self.name))
+      self.errors.append("Regexp \"{0!s}\" didn't match for test {1!s}.".format(self.results_regexp, self.name))
 
     try:
       if self.stddev_regexp and self.stddev:
@@ -205,8 +203,7 @@ class Measurement(object):
       if self.stddev_regexp:
         self.stddev = re.search(self.stddev_regexp, stdout, re.M).group(1)
     except:
-      self.errors.append("Regexp \"%s\" didn't match for test %s."
-                         % (self.stddev_regexp, self.name))
+      self.errors.append("Regexp \"{0!s}\" didn't match for test {1!s}.".format(self.stddev_regexp, self.name))
 
   def GetResults(self):
     return Results([{
@@ -324,8 +321,8 @@ def AccumulateGenericResults(graph_names, suite_units, iter_output):
           results = map(lambda r: str(float(r)), results)
         except ValueError:
           results = []
-          errors = ["Found non-numeric in %s" %
-                    "/".join(graph_names + [graph, trace])]
+          errors = ["Found non-numeric in {0!s}".format(
+                    "/".join(graph_names + [graph, trace]))]
 
         trace_result = traces.setdefault(trace, Results([{
           "graphs": graph_names + [graph, trace],
@@ -393,9 +390,9 @@ class GraphConfig(Node):
     # Descrete values (with parent defaults).
     self.binary = suite.get("binary", parent.binary)
     self.run_count = suite.get("run_count", parent.run_count)
-    self.run_count = suite.get("run_count_%s" % arch, self.run_count)
+    self.run_count = suite.get("run_count_{0!s}".format(arch), self.run_count)
     self.timeout = suite.get("timeout", parent.timeout)
-    self.timeout = suite.get("timeout_%s" % arch, self.timeout)
+    self.timeout = suite.get("timeout_{0!s}".format(arch), self.timeout)
     self.units = suite.get("units", parent.units)
     self.total = suite.get("total", parent.total)
 
@@ -627,7 +624,7 @@ class DesktopPlatform(Platform):
   def _Run(self, runnable, count, no_patch=False):
     suffix = ' - without patch' if no_patch else ''
     shell_dir = self.shell_dir_no_patch if no_patch else self.shell_dir
-    title = ">>> %%s (#%d)%s:" % ((count + 1), suffix)
+    title = ">>> %s (#{0:d}){1!s}:".format((count + 1), suffix)
     try:
       output = commands.Execute(
           runnable.GetCommand(shell_dir, self.extra_flags),
@@ -644,11 +641,11 @@ class DesktopPlatform(Platform):
       print title % "Stderr"
       print output.stderr
     if output.timed_out:
-      print ">>> Test timed out after %ss." % runnable.timeout
+      print ">>> Test timed out after {0!s}s.".format(runnable.timeout)
     if '--prof' in self.extra_flags:
       os_prefix = {"linux": "linux", "macos": "mac"}.get(utils.GuessOS())
       if os_prefix:
-        tick_tools = os.path.join(TOOLS_BASE, "%s-tick-processor" % os_prefix)
+        tick_tools = os.path.join(TOOLS_BASE, "{0!s}-tick-processor".format(os_prefix))
         subprocess.check_call(tick_tools + " --only-summary", shell=True)
       else:  # pragma: no cover
         print "Profiler option currently supported on Linux and Mac OS."
@@ -696,7 +693,7 @@ class AndroidPlatform(Platform):  # pragma: no cover
     # Only attempt to push files that exist.
     if not os.path.exists(file_on_host):
       if not skip_if_missing:
-        logging.critical('Missing file on host: %s' % file_on_host)
+        logging.critical('Missing file on host: {0!s}'.format(file_on_host))
       return
 
     # Only push files not yet pushed in one execution.
@@ -712,8 +709,8 @@ class AndroidPlatform(Platform):  # pragma: no cover
     # Errors look like this: "failed to copy  ... ".
     if output and not re.search('^[0-9]', output.splitlines()[-1]):
       logging.critical('PUSH FAILED: ' + output)
-    self.adb_wrapper.Shell("mkdir -p %s" % folder_on_device)
-    self.adb_wrapper.Shell("cp %s %s" % (file_on_device_tmp, file_on_device))
+    self.adb_wrapper.Shell("mkdir -p {0!s}".format(folder_on_device))
+    self.adb_wrapper.Shell("cp {0!s} {1!s}".format(file_on_device_tmp, file_on_device))
 
   def _PushExecutable(self, shell_dir, target_dir, binary):
     self._PushFile(shell_dir, binary, target_dir)
@@ -755,7 +752,7 @@ class AndroidPlatform(Platform):  # pragma: no cover
   def _Run(self, runnable, count, no_patch=False):
     suffix = ' - without patch' if no_patch else ''
     target_dir = "bin_no_patch" if no_patch else "bin"
-    title = ">>> %%s (#%d)%s:" % ((count + 1), suffix)
+    title = ">>> %s (#{0:d}){1!s}:".format((count + 1), suffix)
     cache = cache_control.CacheControl(self.device)
     cache.DropRamCaches()
     binary_on_device = os.path.join(
@@ -779,7 +776,7 @@ class AndroidPlatform(Platform):  # pragma: no cover
       print title % "Stdout"
       print stdout
     except device_errors.CommandTimeoutError:
-      print ">>> Test timed out after %ss." % runnable.timeout
+      print ">>> Test timed out after {0!s}s.".format(runnable.timeout)
       stdout = ""
     return stdout
 
@@ -823,7 +820,7 @@ def Main(args):
     options.arch = ARCH_GUESS
 
   if not options.arch in SUPPORTED_ARCHS:  # pragma: no cover
-    print "Unknown architecture %s" % options.arch
+    print "Unknown architecture {0!s}".format(options.arch)
     return 1
 
   if options.device and not options.android_build_tools:  # pragma: no cover
@@ -841,7 +838,7 @@ def Main(args):
   if options.buildbot:
     build_config = "Release"
   else:
-    build_config = "%s.release" % options.arch
+    build_config = "{0!s}.release".format(options.arch)
 
   options.shell_dir = os.path.join(workspace, options.outdir, build_config)
 
@@ -859,7 +856,7 @@ def Main(args):
     path = os.path.abspath(path)
 
     if not os.path.exists(path):  # pragma: no cover
-      results.errors.append("Configuration file %s does not exist." % path)
+      results.errors.append("Configuration file {0!s} does not exist.".format(path))
       continue
 
     with open(path) as f:
@@ -880,7 +877,7 @@ def Main(args):
 
     # Traverse graph/trace tree and interate over all runnables.
     for runnable in FlattenRunnables(root, NodeCB):
-      print ">>> Running suite: %s" % "/".join(runnable.graphs)
+      print ">>> Running suite: {0!s}".format("/".join(runnable.graphs))
 
       def Runner():
         """Output generator that reruns several times."""

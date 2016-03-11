@@ -98,9 +98,8 @@ class LocalHandler(SocketServer.BaseRequestHandler):
     sio.write("Peers:\n")
     with self.server.daemon.peer_list_lock:
       for p in self.server.daemon.peers:
-        sio.write("%s\n" % p)
-    sio.write("My own jobs: %d, relative performance: %.2f\n" %
-              (self.server.daemon.jobs, self.server.daemon.relative_perf))
+        sio.write("{0!s}\n".format(p))
+    sio.write("My own jobs: {0:d}, relative performance: {1:.2f}\n".format(self.server.daemon.jobs, self.server.daemon.relative_perf))
     # Low-priority TODO: Return more information. Ideas:
     #   - currently running anything,
     #   - time since last job,

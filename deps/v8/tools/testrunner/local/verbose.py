@@ -74,26 +74,26 @@ def PrintTestSource(tests):
     suite = test.suite
     source = suite.GetSourceForTest(test).strip()
     if len(source) > 0:
-      print "--- begin source: %s/%s ---" % (suite.name, test.path)
+      print "--- begin source: {0!s}/{1!s} ---".format(suite.name, test.path)
       print source
-      print "--- end source: %s/%s ---" % (suite.name, test.path)
+      print "--- end source: {0!s}/{1!s} ---".format(suite.name, test.path)
 
 
 def FormatTime(d):
   millis = round(d * 1000) % 1000
-  return time.strftime("%M:%S.", time.gmtime(d)) + ("%03i" % millis)
+  return time.strftime("%M:%S.", time.gmtime(d)) + ("{0:03d}".format(millis))
 
 
 def PrintTestDurations(suites, overall_time):
     # Write the times to stderr to make it easy to separate from the
     # test output.
     print
-    sys.stderr.write("--- Total time: %s ---\n" % FormatTime(overall_time))
+    sys.stderr.write("--- Total time: {0!s} ---\n".format(FormatTime(overall_time)))
     timed_tests = [ t for s in suites for t in s.tests
                     if t.duration is not None ]
     timed_tests.sort(lambda a, b: cmp(b.duration, a.duration))
     index = 1
     for entry in timed_tests[:20]:
       t = FormatTime(entry.duration)
-      sys.stderr.write("%4i (%s) %s\n" % (index, t, entry.GetLabel()))
+      sys.stderr.write("{0:4d} ({1!s}) {2!s}\n".format(index, t, entry.GetLabel()))
       index += 1

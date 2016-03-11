@@ -49,7 +49,7 @@ class PerfDataEntry(object):
 
 class PerfDataStore(object):
   def __init__(self, datadir, arch, mode):
-    filename = os.path.join(datadir, "%s.%s.perfdata" % (arch, mode))
+    filename = os.path.join(datadir, "{0!s}.{1!s}.perfdata".format(arch, mode))
     self.database = shelve.open(filename, protocol=2)
     self.closed = False
     self.lock = threading.Lock()
@@ -65,7 +65,7 @@ class PerfDataStore(object):
   def GetKey(self, test):
     """Computes the key used to access data for the given testcase."""
     flags = "".join(test.flags)
-    return str("%s.%s.%s" % (test.suitename(), test.path, flags))
+    return str("{0!s}.{1!s}.{2!s}".format(test.suitename(), test.path, flags))
 
   def FetchPerfData(self, test):
     """Returns the observed duration for |test| as read from the store."""

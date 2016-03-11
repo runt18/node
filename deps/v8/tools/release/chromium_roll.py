@@ -78,19 +78,19 @@ class UploadCL(Step):
   def RunStep(self):
     cwd = self._options.chromium
     # Patch DEPS file.
-    if self.Command("roll-dep-svn", "v8 %s" %
-                    self._options.roll, cwd=cwd) is None:
-      self.Die("Failed to create deps for %s" % self._options.roll)
+    if self.Command("roll-dep-svn", "v8 {0!s}".format(
+                    self._options.roll), cwd=cwd) is None:
+      self.Die("Failed to create deps for {0!s}".format(self._options.roll))
 
     message = []
-    message.append("Update V8 to %s." % self["roll_title"].lower())
+    message.append("Update V8 to {0!s}.".format(self["roll_title"].lower()))
 
     message.append(
         ROLL_SUMMARY % (self._options.last_roll[:8], self._options.roll[:8]))
 
     message.append(ISSUE_MSG)
 
-    message.append("TBR=%s" % self._options.reviewer)
+    message.append("TBR={0!s}".format(self._options.reviewer))
     self.GitCommit("\n\n".join(message),  author=self._options.author, cwd=cwd)
     if not self._options.dry_run:
       self.GitUpload(author=self._options.author,
@@ -113,7 +113,7 @@ class CleanUp(Step):
           % self._options.roll)
 
     # Clean up all temporary files.
-    Command("rm", "-f %s*" % self._config["PERSISTFILE_BASENAME"])
+    Command("rm", "-f {0!s}*".format(self._config["PERSISTFILE_BASENAME"]))
 
 
 class ChromiumRoll(ScriptsBase):

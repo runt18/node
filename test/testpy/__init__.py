@@ -54,7 +54,7 @@ class SimpleTestCase(test.TestCase):
 
 
   def GetLabel(self):
-    return "%s %s" % (self.mode, self.GetName())
+    return "{0!s} {1!s}".format(self.mode, self.GetName())
 
   def GetName(self):
     return self.path[-1]
@@ -111,7 +111,7 @@ class SimpleTestConfiguration(test.TestConfiguration):
     return ['sample', 'sample=shell']
 
   def GetTestStatus(self, sections, defs):
-    status_file = join(self.root, '%s.status' % (self.section))
+    status_file = join(self.root, '{0!s}.status'.format((self.section)))
     if exists(status_file):
       test.ReadConfigurationInto(status_file, sections, defs)
 
