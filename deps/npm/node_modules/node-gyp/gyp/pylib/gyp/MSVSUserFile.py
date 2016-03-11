@@ -75,7 +75,7 @@ class Writer(object):
     """
     self.configurations[name] = ['Configuration', {'Name': name}]
 
-  def AddDebugSettings(self, config_name, command, environment = {},
+  def AddDebugSettings(self, config_name, command, environment = None,
                        working_directory=""):
     """Adds a DebugSettings node to the user file for a particular config.
 
@@ -85,6 +85,8 @@ class Writer(object):
         necessary.
       working_directory: other files which may trigger the rule. (optional)
     """
+    if environment is None:
+      environment = {}
     command = _QuoteWin32CommandLineArgs(command)
 
     abs_command = _FindCommandInPath(command[0])

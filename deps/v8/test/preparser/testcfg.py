@@ -63,7 +63,9 @@ class PreparserTestSuite(testsuite.TestSuite):
 
   def _ParsePythonTestTemplates(self, result, filename):
     pathname = os.path.join(self.root, filename + ".pyt")
-    def Test(name, source, expectation, extra_flags=[]):
+    def Test(name, source, expectation, extra_flags=None):
+      if extra_flags is None:
+        extra_flags = []
       source = source.replace("\n", " ")
       testname = os.path.join(filename, name)
       flags = ["-e", source]

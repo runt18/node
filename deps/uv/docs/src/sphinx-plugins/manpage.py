@@ -27,7 +27,11 @@ def make_link_node(rawtext, app, name, manpage_num, options):
     return node
 
 
-def man_role(name, rawtext, text, lineno, inliner, options={}, content=[]):
+def man_role(name, rawtext, text, lineno, inliner, options=None, content=None):
+    if options is None:
+        options = {}
+    if content is None:
+        content = []
     app = inliner.document.settings.env.app
     p = re.compile("([a-zA-Z0-9_\.-_]+)\((\d)\)")
     m = p.match(text)

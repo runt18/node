@@ -617,7 +617,9 @@ def CheckedUnlink(name):
       PrintError("os.unlink() " + str(e))
     break
 
-def Execute(args, context, timeout=None, env={}):
+def Execute(args, context, timeout=None, env=None):
+  if env is None:
+    env = {}
   (fd_out, outname) = tempfile.mkstemp()
   (fd_err, errname) = tempfile.mkstemp()
 

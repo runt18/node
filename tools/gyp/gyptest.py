@@ -21,7 +21,9 @@ class CommandRunner(object):
   verbose = True
   active = True
 
-  def __init__(self, dictionary={}):
+  def __init__(self, dictionary=None):
+    if dictionary is None:
+      dictionary = {}
     self.subst_dictionary(dictionary)
 
   def subst_dictionary(self, dictionary):

@@ -61,7 +61,7 @@ def PrepareCmake():
   CallSubProcess( ['make', 'cmake'], cwd=CMAKE_DIR)
 
 
-def GypTestFormat(title, format=None, msvs_version=None, tests=[]):
+def GypTestFormat(title, format=None, msvs_version=None, tests=None):
   """Run the gyp tests for a given format, emitting annotator tags.
 
   See annotator docs at:
@@ -71,6 +71,8 @@ def GypTestFormat(title, format=None, msvs_version=None, tests=[]):
   Returns:
     0 for sucesss, 1 for failure.
   """
+  if tests is None:
+    tests = []
   if not format:
     format = title
 

@@ -47,8 +47,8 @@ def FindBuildFiles():
   return build_files
 
 
-def Load(build_files, format, default_variables={},
-         includes=[], depth='.', params=None, check=False,
+def Load(build_files, format, default_variables=None,
+         includes=None, depth='.', params=None, check=False,
          circular_check=True, duplicate_basename_check=True):
   """
   Loads one or more specified build files.
@@ -56,6 +56,10 @@ def Load(build_files, format, default_variables={},
   Returns the generator for the specified format and the
   data returned by loading the specified build files.
   """
+  if default_variables is None:
+    default_variables = {}
+  if includes is None:
+    includes = []
   if params is None:
     params = {}
 
