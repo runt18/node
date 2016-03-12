@@ -62,7 +62,7 @@ def out_reset():
 
 def out_define():
   global curr_sym, curr_val, curr_octet, outfile, octets
-  if curr_sym != None:
+  if curr_sym is not None:
     wrapped_val = curr_val & 0xffffffff;
     if curr_val & 0x80000000 != 0:
       wrapped_val = 0x100000000 - wrapped_val;
@@ -72,7 +72,7 @@ def out_define():
   out_reset();
 
 for line in pipe:
-  if curr_sym != None:
+  if curr_sym is not None:
     #
     # This bit of code has nasty knowledge of the objdump text output
     # format, but this is the most obvious robust approach.  We could almost
@@ -94,14 +94,14 @@ for line in pipe:
       curr_octet += 1;
 
   match = pattern.match(line)
-  if match == None:
+  if match is None:
     continue;
 
   # Print previous symbol
   out_define();
 
   v8match = v8dbg.match(match.group(2));
-  if v8match != None:
+  if v8match is not None:
     out_reset();
     curr_sym = match.group(2);
 

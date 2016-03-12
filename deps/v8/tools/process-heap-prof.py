@@ -64,7 +64,7 @@ def ProcessLogFile(filename, options):
       for row in logreader:
         if row[0] == 'heap-sample-begin' and row[1] == 'Heap':
           sample_time = float(row[3])/1000.0
-          if first_call_time == None:
+          if first_call_time is None:
             first_call_time = sample_time
           sample_time -= first_call_time
           print('BEGIN_SAMPLE {0:.2f}'.format(sample_time))
