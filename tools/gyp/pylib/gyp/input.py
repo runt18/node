@@ -154,7 +154,7 @@ def GetIncludedBuildFiles(build_file_path, aux_data, included=None):
   in the list will be relative to the current directory.
   """
 
-  if included == None:
+  if included is None:
     included = []
 
   if build_file_path in included:
@@ -270,7 +270,7 @@ def LoadOneBuildFile(build_file_path, data, aux_data, includes,
 def LoadBuildFileIncludesIntoDict(subdict, subdict_path, data, aux_data,
                                   includes, check):
   includes_list = []
-  if includes != None:
+  if includes is not None:
     includes_list.extend(includes)
   if 'includes' in subdict:
     for include in subdict['includes']:
@@ -886,7 +886,7 @@ def ExpandVariables(input, phase, variables, build_file):
             replacement = str(py_module.DoMain(parsed_contents[1:])).rstrip()
           finally:
             os.chdir(oldwd)
-          assert replacement != None
+          assert replacement is not None
         elif command_string:
           raise GypError("Unknown command string '{0!s}' in '{1!s}'.".format(command_string, contents))
         else:
@@ -1050,7 +1050,7 @@ def EvalCondition(condition, conditions_key, phase, variables, build_file):
     else:
       false_dict = None
       i = i + 2
-    if result == None:
+    if result is None:
       result = EvalSingleCondition(
           cond_expr, true_dict, false_dict, phase, variables, build_file)
 
@@ -1129,7 +1129,7 @@ def ProcessConditionsInDict(the_dict, phase, variables, build_file):
     merge_dict = EvalCondition(condition, conditions_key, phase, variables,
                                build_file)
 
-    if merge_dict != None:
+    if merge_dict is not None:
       # Expand variables and nested conditinals in the merge_dict before
       # merging it.
       ProcessVariablesAndConditionsInDict(merge_dict, phase,
@@ -1590,12 +1590,12 @@ class DependencyGraphNode(object):
 
   def DirectDependencies(self, dependencies=None):
     """Returns a list of just direct dependencies."""
-    if dependencies == None:
+    if dependencies is None:
       dependencies = []
 
     for dependency in self.dependencies:
       # Check for None, corresponding to the root node.
-      if dependency.ref != None and dependency.ref not in dependencies:
+      if dependency.ref is not None and dependency.ref not in dependencies:
         dependencies.append(dependency.ref)
 
     return dependencies
@@ -1618,7 +1618,7 @@ class DependencyGraphNode(object):
     public entry point.
     """
 
-    if dependencies == None:
+    if dependencies is None:
       dependencies = []
 
     index = 0
