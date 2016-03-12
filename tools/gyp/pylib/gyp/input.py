@@ -1039,13 +1039,13 @@ def EvalCondition(condition, conditions_key, phase, variables, build_file):
     cond_expr = condition[i]
     true_dict = condition[i + 1]
     if type(true_dict) is not dict:
-      raise GypError('{} {} must be followed by a dictionary, not {}'.format(
+      raise GypError('{0} {1} must be followed by a dictionary, not {2}'.format(
         conditions_key, cond_expr, type(true_dict)))
     if len(condition) > i + 2 and type(condition[i + 2]) is dict:
       false_dict = condition[i + 2]
       i = i + 3
       if i != len(condition):
-        raise GypError('{} {} has {} unexpected trailing items'.format(
+        raise GypError('{0} {1} has {2} unexpected trailing items'.format(
           conditions_key, cond_expr, len(condition) - i))
     else:
       false_dict = None
