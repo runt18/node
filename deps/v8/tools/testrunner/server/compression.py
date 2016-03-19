@@ -56,7 +56,7 @@ class Receiver(object):
     self._next = self._GetNext()
 
   def IsDone(self):
-    return self._next == None
+    return self._next is None
 
   def Current(self):
     return self._next

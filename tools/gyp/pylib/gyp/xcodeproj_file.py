@@ -384,7 +384,7 @@ class XCObject(object):
     hashables = [self.__class__.__name__]
 
     name = self.Name()
-    if name != None:
+    if name is not None:
       hashables.append(name)
 
     hashables.extend(self._hashables)
@@ -630,7 +630,7 @@ class XCObject(object):
     else:
       raise TypeError("Can't make " + value.__class__.__name__ + ' printable')
 
-    if comment != None:
+    if comment is not None:
       printable += ' ' + self._EncodeComment(comment)
 
     return printable
@@ -926,11 +926,11 @@ class XCHierarchicalElement(XCObject):
       # the variable out and make the path be relative to that variable by
       # assigning the variable name as the sourceTree.
       (source_tree, path) = SourceTreeAndPathFromPath(self._properties['path'])
-      if source_tree != None:
+      if source_tree is not None:
         self._properties['sourceTree'] = source_tree
-      if path != None:
+      if path is not None:
         self._properties['path'] = path
-      if source_tree != None and path is None and \
+      if source_tree is not None and path is None and \
          not 'name' in self._properties:
         # The path was of the form "$(SDKROOT)" with no path following it.
         # This object is now relative to that variable, so it has no path
@@ -992,7 +992,7 @@ class XCHierarchicalElement(XCObject):
     # hashables, even though the paths aren't relative to their parents.  This
     # is not expected to be much of a problem in practice.
     path = self.PathFromSourceTreeAndPath()
-    if path != None:
+    if path is not None:
       components = path.split(posixpath.sep)
       for component in components:
         hashables.append(self.__class__.__name__ + '.path')
@@ -1083,9 +1083,9 @@ class XCHierarchicalElement(XCObject):
           (path is None or \
            (not path.startswith('/') and not path.startswith('$'))):
       this_path = xche.PathFromSourceTreeAndPath()
-      if this_path != None and path != None:
+      if this_path is not None and path is not None:
         path = posixpath.join(this_path, path)
-      elif this_path != None:
+      elif this_path is not None:
         path = this_path
       xche = xche.parent
 
@@ -1126,7 +1126,7 @@ class PBXGroup(XCHierarchicalElement):
     # children.
     for child in self._properties.get('children', []):
       child_name = child.Name()
-      if child_name != None:
+      if child_name is not None:
         hashables.append(child_name)
 
     return hashables
@@ -1256,14 +1256,14 @@ class PBXGroup(XCHierarchicalElement):
 
     path_split = path.split(posixpath.sep)
     if len(path_split) == 1 or \
-       ((is_dir or variant_name != None) and len(path_split) == 2) or \
+       ((is_dir or variant_name is not None) and len(path_split) == 2) or \
        not hierarchical:
       # The PBXFileReference or PBXVariantGroup will be added to or gotten from
       # this PBXGroup, no recursion necessary.
       if variant_name is None:
         # Add or get a PBXFileReference.
         file_ref = self.GetChildByPath(path)
-        if file_ref != None:
+        if file_ref is not None:
           assert file_ref.__class__ == PBXFileReference
         else:
           file_ref = PBXFileReference({'path': path})
@@ -1278,7 +1278,7 @@ class PBXGroup(XCHierarchicalElement):
             variant_group_name, grandparent)
         variant_path = posixpath.sep.join(path_split[-2:])
         variant_ref = variant_group_ref.GetChildByPath(variant_path)
-        if variant_ref != None:
+        if variant_ref is not None:
           assert variant_ref.__class__ == PBXFileReference
         else:
           variant_ref = PBXFileReference({'name': variant_name,
@@ -1294,7 +1294,7 @@ class PBXGroup(XCHierarchicalElement):
       # path component.
       next_dir = path_split[0]
       group_ref = self.GetChildByPath(next_dir)
-      if group_ref != None:
+      if group_ref is not None:
         assert group_ref.__class__ == PBXGroup
       else:
         group_ref = PBXGroup({'path': next_dir})
@@ -1322,7 +1322,7 @@ class PBXGroup(XCHierarchicalElement):
       return variant_group_ref
 
     variant_group_properties = {'name': name}
-    if path != None:
+    if path is not None:
       variant_group_properties['path'] = path
     variant_group_ref = PBXVariantGroup(variant_group_properties)
     self.AppendChild(variant_group_ref)
@@ -1382,7 +1382,7 @@ class PBXGroup(XCHierarchicalElement):
       # If the original parent had a name set, keep using it.  If the original
       # parent didn't have a name but the child did, let the child's name
       # live on.  If the name attribute seems unnecessary now, get rid of it.
-      if 'name' in old_properties and old_properties['name'] != None and \
+      if 'name' in old_properties and old_properties['name'] is not None and \
          old_properties['name'] != self.Name():
         self._properties['name'] = old_properties['name']
       if 'name' in self._properties and 'path' in self._properties and \
@@ -1423,7 +1423,7 @@ class XCFileLikeElement(XCHierarchicalElement):
 
     hashables = []
     xche = self
-    while xche != None and isinstance(xche, XCHierarchicalElement):
+    while xche is not None and isinstance(xche, XCHierarchicalElement):
       xche_hashables = xche.Hashables()
       for index in xrange(0, len(xche_hashables)):
         hashables.insert(index, xche_hashables[index])
@@ -1812,7 +1812,7 @@ class XCBuildPhase(XCObject):
     xcfilelikeelement = pbxbuildfile._properties['fileRef']
 
     paths = []
-    if path != None:
+    if path is not None:
       # It's best when the caller provides the path.
       if isinstance(xcfilelikeelement, PBXVariantGroup):
         paths.append(path)
@@ -2273,10 +2273,10 @@ class PBXNativeTarget(XCTarget):
        self._properties['productType'] in self._product_filetypes:
       products_group = None
       pbxproject = self.PBXProjectAncestor()
-      if pbxproject != None:
+      if pbxproject is not None:
         products_group = pbxproject.ProductsGroup()
 
-      if products_group != None:
+      if products_group is not None:
         (filetype, prefix, suffix) = \
             self._product_filetypes[self._properties['productType']]
         # Xcode does not have a distinct type for loadable modules that are
@@ -2604,7 +2604,7 @@ class PBXProject(XCContainerPortal):
     }
 
     (source_tree, path) = SourceTreeAndPathFromPath(path)
-    if source_tree != None and source_tree in source_tree_groups:
+    if source_tree is not None and source_tree in source_tree_groups:
       (group_func, hierarchical) = source_tree_groups[source_tree]
       group = group_func()
       return (group, hierarchical)

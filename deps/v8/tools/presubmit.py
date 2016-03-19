@@ -76,7 +76,7 @@ def CppLintWorker(command):
     error_count = -1
     while True:
       out_line = process.stderr.readline()
-      if out_line == '' and process.poll() != None:
+      if out_line == '' and process.poll() is not None:
         if error_count == -1:
           print "Failed to process {0!s}".format(command.pop())
           return 1

@@ -1758,7 +1758,7 @@ class InspectionInfo(object):
 
   def get_style_class_string(self, address):
     style = self.get_style_class(address)
-    if style != None:
+    if style is not None:
       return " class=\"{0!s}\" ".format(style)
     else:
       return ""
@@ -2458,7 +2458,7 @@ class InspectionWebFormatter(object):
       self.td_from_address(f, maybe_address)
       f.write(":&nbsp;{0!s}&nbsp;</td>\n".format(straddress))
       f.write("  <td>")
-      if maybe_address != None:
+      if maybe_address is not None:
         self.output_comment_box(
             f, "sv-" + self.reader.FormatIntPtr(slot), maybe_address)
       f.write("  </td>\n")
